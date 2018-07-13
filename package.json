@@ -1,0 +1,33 @@
+{
+  "name": "instrumental",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Financial Instruments encoded as Smart Contracts.",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "lint:solium": "solium -d contracts/",
+    "lint:solhint": "solhint contracts/**/*.sol",
+    "lint:std": "standard",
+    "lint:eth": "npm run lint:solium && npm run lint:solhint",
+    "lint": "npm run lint:eth && npm run lint:std",
+    "pretest": "npm run lint",
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcoonroad/ethereum-contracts.git"
+  },
+  "keywords": [
+    "ethereum",
+    "solidity",
+    "smart-contracts"
+  ],
+  "author": "Marco Aurelio da Silva <marcoonroad@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/marcoonroad/ethereum-contracts/issues"
+  },
+  "homepage": "https://github.com/marcoonroad/ethereum-contracts#readme"
+}
