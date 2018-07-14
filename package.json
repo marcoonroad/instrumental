@@ -10,9 +10,9 @@
     "lint:solium": "solium -d contracts/",
     "lint:solhint": "solhint contracts/**/*.sol",
     "lint:std": "standard",
-    "lint:eth": "npm run lint:solium && npm run lint:solhint",
-    "lint": "npm run lint:eth && npm run lint:std",
-    "pretest": "npm run lint",
+    "lint:eth": "yarn run lint:solium && yarn run lint:solhint",
+    "lint": "yarn run lint:eth && yarn run lint:std",
+    "pretest": "yarn run lint",
     "test": "truffle test"
   },
   "repository": {
