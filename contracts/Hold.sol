@@ -1,4 +1,4 @@
-pragma solidity ^0.4.22;
+pragma solidity 0.4.24;
 
 // Authorization Hold contract
 // a.k.a Preauthorization
@@ -9,6 +9,7 @@ contract Hold {
     PENDING,
     AUTHORIZED,
     SETTLED,
+    REDEEMED,
     REFUNDED
   }
 
@@ -19,28 +20,35 @@ contract Hold {
   uint256 public expiredAt;
   HoldStatus public status;
 
-  event PendingHold(
+  event LogPendingHold(
     address indexed seller,
     address indexed hold,
     address indexed buyer,
     uint256 timestamp
   );
 
-  event AuthorizedHold(
+  event LogAuthorizedHold(
     address indexed seller,
     address indexed hold,
     address indexed buyer,
     uint256 timestamp
   );
 
-  event SettledHold(
+  event LogSettledHold(
     address indexed seller,
     address indexed hold,
     address indexed buyer,
     uint256 timestamp
   );
 
-  event RefundedHold(
+  event LogRedeemedHold(
+    address indexed seller,
+    address indexed hold,
+    address indexed buyer,
+    uint256 timestamp
+  );
+
+  event LogRefundedHold(
     address indexed seller,
     address indexed hold,
     address indexed buyer,
@@ -61,54 +69,63 @@ contract Hold {
     status = HoldStatus.PENDING;
 
     address hold = address(this);
-    emit PendingHold(seller, hold, buyer, now);
+    emit LogPendingHold(seller, hold, buyer, block.timestamp);
   }
 
   function authorize(uint256 _expiredAt) public payable {
     require(msg.value == estimatedAmount);
     require(msg.sender == buyer);
-    require(_expiredAt >= now + 5 minutes);
+    require(_expiredAt >= block.timestamp + 5 minutes);
 
     expiredAt = _expiredAt;
     status = HoldStatus.AUTHORIZED;
 
     address hold = address(this);
-    emit AuthorizedHold(seller, hold, buyer, now);
+    emit LogAuthorizedHold(seller, hold, buyer, block.timestamp);
   }
 
   function refund() public {
     require(status == HoldStatus.AUTHORIZED);
     require(msg.sender == buyer);
-    require(now > expiredAt);
+    require(block.timestamp > expiredAt);
 
     buyer.transfer(estimatedAmount);
     status = HoldStatus.REFUNDED;
 
     address hold = address(this);
 
-    emit RefundedHold(seller, hold, buyer, now);
+    emit LogRefundedHold(seller, hold, buyer, block.timestamp);
   }
 
   function settle(uint256 _settledAmount) public {
     require(status == HoldStatus.AUTHORIZED);
     require(msg.sender == seller);
-    require(now < expiredAt);
+    require(block.timestamp < expiredAt);
     require(_settledAmount >= 1);
     require(_settledAmount <= estimatedAmount);
 
     settledAmount = _settledAmount;
     status = HoldStatus.SETTLED;
 
-    address hold = address(this);
-
-    if (settledAmount < estimatedAmount) {
-      uint256 remainingAmount = estimatedAmount - settledAmount;
-      buyer.transfer(remainingAmount);
-    }
-
     seller.transfer(settledAmount);
 
-    emit SettledHold(seller, hold, buyer, now);
+    address hold = address(this);
+    emit LogSettledHold(seller, hold, buyer, block.timestamp);
+  }
+
+  function redeem() public {
+    require(msg.sender == buyer);
+    require(status == HoldStatus.SETTLED);
+    require(settledAmount < estimatedAmount);
+
+    status = HoldStatus.REDEEMED;
+
+    uint256 remainingAmount = estimatedAmount - settledAmount;
+    buyer.transfer(remainingAmount);
+
+    address hold = address(this);
+
+    emit LogRedeemedHold(seller, hold, buyer, block.timestamp);
   }
 
 }
