@@ -51,6 +51,7 @@ contract Hold {
     address _buyer,
     uint256 _estimatedAmount
   ) public {
+    require(_buyer != address(0));
     require(msg.sender != _buyer);
     require(_estimatedAmount >= 1);
 
