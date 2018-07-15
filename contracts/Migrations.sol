@@ -23,6 +23,7 @@ contract Migrations {
 
   function upgrade(address newAddress) public restricted {
     require(newAddress != address(0));
+    require(newAddress != address(this));
     Migrations upgraded = Migrations(newAddress);
     upgraded.setCompleted(last_completed_migration);
   }
