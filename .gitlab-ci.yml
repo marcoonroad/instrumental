@@ -1,0 +1,11 @@
+image: node:8.11
+
+cache:
+  paths:
+    - node_modules/
+
+test_async:
+  before_script:
+    - yarn
+  script:
+    - PATH="./node_modules/.bin:$PATH" yarn test

@@ -90,8 +90,9 @@ contract Hold {
     require(msg.sender == buyer);
     require(block.timestamp > expiredAt);
 
-    buyer.transfer(estimatedAmount);
     status = HoldStatus.REFUNDED;
+
+    buyer.transfer(estimatedAmount);
 
     address hold = address(this);
 

@@ -1,2 +1,4 @@
 TRASH/
 build/
+node_modules/
+ganache-cli.pid

@@ -7,13 +7,32 @@
     "test": "test"
   },
   "scripts": {
+    "net:on": "bash .ci/net-on.sh",
+    "net:off": "bash .ci/net-off.sh",
     "lint:solium": "solium -d contracts/",
     "lint:solhint": "solhint contracts/**/*.sol",
     "lint:std": "standard",
     "lint:eth": "yarn run lint:solium && yarn run lint:solhint",
     "lint": "yarn run lint:eth && yarn run lint:std",
-    "pretest": "yarn run lint",
-    "test": "truffle test"
+    "pretest:eth": "yarn run lint",
+    "test:eth": "truffle test",
+    "pretest": "yarn run net:on",
+    "posttest": "yarn run net:off",
+    "test": "yarn run test:eth",
+    "hook:commit": "lint-staged",
+    "hook:push": "yarn run test"
+  },
+  "lint-staged": {
+    "*.js": [
+      "standard --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn run hook:commit",
+      "pre-push": "yarn run hook:push"
+    }
   },
   "repository": {
     "type": "git",
@@ -29,5 +48,16 @@
   "bugs": {
     "url": "https://github.com/marcoonroad/ethereum-contracts/issues"
   },
-  "homepage": "https://github.com/marcoonroad/ethereum-contracts#readme"
+  "homepage": "https://github.com/marcoonroad/ethereum-contracts#readme",
+  "devDependencies": {
+    "ganache-cli": "^6.1.8",
+    "husky": "^1.0.0-rc.15",
+    "lint-staged": "^7.3.0",
+    "prettier": "^1.14.3",
+    "solc": "0.4.24",
+    "solhint": "^1.2.1",
+    "solium": "^1.1.8",
+    "standard": "^12.0.1",
+    "truffle": "^4.1.14"
+  }
 }
