@@ -4,6 +4,7 @@ Financial Instruments encoded as Smart Contracts.
 
 Gitlab CI: [![pipeline status](https://gitlab.com/marcoonroad/instrumental/badges/master/pipeline.svg)](https://gitlab.com/marcoonroad/instrumental/commits/master)
 
+Travis CI: [![Build Status](https://travis-ci.com/marcoonroad/instrumental.svg?branch=master)](https://travis-ci.com/marcoonroad/instrumental)
 
 ### Roadmap of Contracts
 
