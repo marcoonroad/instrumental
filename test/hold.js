@@ -12,12 +12,19 @@ const {
 } = require('../support/account')
 
 const Hold = artifacts.require('./Hold.sol')
-
+const truffleAssert = require('truffle-assertions')
 const cases = require('../support/cases/hold')
 
 contract('Hold', accounts => {
   const params = {
-    accounts, Hold, HoldStatus, assert, balanceOf, toEther, fromEther
+    accounts,
+    Hold,
+    HoldStatus,
+    assert,
+    balanceOf,
+    toEther,
+    fromEther,
+    truffleAssert
   }
 
   it('should create a hold', async () => {

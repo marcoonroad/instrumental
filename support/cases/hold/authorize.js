@@ -4,6 +4,7 @@ module.exports = async (params) => {
   const assert = params.assert
   const accounts = params.accounts
   const balanceOf = params.balanceOf
+  const truffleAssert = params.truffleAssert
 
   const balances = {
     hold: [],
@@ -46,7 +47,13 @@ module.exports = async (params) => {
   } catch (reason) {
     assert(true)
   }
-  await hold.authorize(time, options.buyer)
+  const txAuthorize = await hold.authorize(time, options.buyer)
+
+  truffleAssert.eventEmitted(txAuthorize, 'LogAuthorizedHold', event => {
+    return event.seller === accounts[2] &&
+      event.buyer === accounts[3] &&
+      event.hold === hold.address
+  })
 
   const status = await hold.status()
   const expiredAt = await hold.expiredAt()
