@@ -76,7 +76,8 @@ contract Hold {
   function authorize(uint256 _expiredAt) public payable {
     require(msg.value == estimatedAmount);
     require(msg.sender == buyer);
-    require(_expiredAt >= block.timestamp + 5 minutes);
+    require(_expiredAt > block.timestamp + 5 minutes);
+    // require(_expiredAt < block.timestamp + 30 days);
 
     expiredAt = _expiredAt;
     status = HoldStatus.AUTHORIZED;

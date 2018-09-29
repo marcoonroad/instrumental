@@ -2,3 +2,4 @@ TRASH/
 build/
 node_modules/
 ganache-cli.pid
+ganache-cli.log
