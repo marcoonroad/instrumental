@@ -4,6 +4,8 @@ module.exports = async (params) => {
   const assert = params.assert
   const accounts = params.accounts
   const balanceOf = params.balanceOf
+  const toEther = params.toEther
+  const fromEther = params.fromEther
 
   const balances = {
     hold: [],
@@ -13,22 +15,22 @@ module.exports = async (params) => {
 
   const options = {
     seller: {
-      from: accounts[3]
+      from: accounts[2]
     },
     buyer: {
-      from: accounts[4],
-      value: 100
+      from: accounts[6],
+      value: fromEther(2)
     },
     attacker1: {
       from: accounts[9],
-      value: 20
+      value: fromEther(1)
     },
     attacker2: {
       from: accounts[8]
     }
   }
 
-  const hold = await Hold.new(accounts[4], 100, options.seller)
+  const hold = await Hold.new(accounts[6], fromEther(2), options.seller)
 
   const time = (new Date()).getTime() + (48 * 60 * 60 * 1000)
 
@@ -40,17 +42,25 @@ module.exports = async (params) => {
   }
   await hold.authorize(time, options.buyer)
 
-  balances.buyer.push(await balanceOf(accounts[4]))
+  balances.buyer.push(await balanceOf(accounts[6]))
 
   try {
-    await hold.settle(50, options.attacker2)
+    await hold.settle(fromEther(0.9), options.attacker2)
     assert(false)
   } catch (reason) {
     assert(true)
   }
-  await hold.settle(70, options.seller)
+  await hold.settle(fromEther(1.4), options.seller)
 
-  balances.buyer.push(await balanceOf(accounts[4]))
+  try {
+    await hold.redeem(options.attacker2)
+    assert(false)
+  } catch (reason) {
+    assert(true)
+  }
+  await hold.redeem({ from: accounts[6] })
+
+  balances.buyer.push(await balanceOf(accounts[6]))
   balances.hold.push(await balanceOf(hold.address))
 
   const estimatedAmount = await hold.estimatedAmount()
@@ -59,11 +69,11 @@ module.exports = async (params) => {
   const seller = await hold.seller()
   const buyer = await hold.buyer()
 
-  assert.equal(seller, accounts[3])
-  assert.equal(buyer, accounts[4])
-  assert.equal(estimatedAmount, 100)
-  assert.equal(settledAmount, 70)
-  assert.equal(status.toNumber(), HoldStatus.SETTLED)
-  assert.equal(balances.hold[0], 30)
-  assert.equal(balances.buyer[0], balances.buyer[1])
+  assert.equal(seller, accounts[2])
+  assert.equal(buyer, accounts[6])
+  assert.equal(toEther(estimatedAmount), 2)
+  assert.equal(toEther(settledAmount), 1.4)
+  assert.equal(status.toNumber(), HoldStatus.REDEEMED)
+  assert.equal(balances.hold[0], 0)
+  assert.isBelow(balances.buyer[0], balances.buyer[1])
 }

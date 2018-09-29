@@ -8,6 +8,11 @@ const balanceOf = async account => {
   return balance.toNumber()
 }
 
+const toEther = amount => web3.fromWei(amount, 'ether')
+const fromEther = amount => web3.toWei(amount, 'ether')
+
 module.exports = {
-  balanceOf
+  balanceOf,
+  toEther,
+  fromEther
 }

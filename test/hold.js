@@ -8,7 +8,7 @@ const {
 } = require('../support/hold')
 
 const {
-  balanceOf
+  balanceOf, toEther, fromEther
 } = require('../support/account')
 
 const Hold = artifacts.require('./Hold.sol')
@@ -17,7 +17,7 @@ const cases = require('../support/cases/hold')
 
 contract('Hold', accounts => {
   const params = {
-    accounts, Hold, HoldStatus, assert, balanceOf
+    accounts, Hold, HoldStatus, assert, balanceOf, toEther, fromEther
   }
 
   it('should create a hold', async () => {
@@ -30,5 +30,9 @@ contract('Hold', accounts => {
 
   it('should settle a hold', async () => {
     await cases.settle(params)
+  })
+
+  it('should redeem a hold whenever it can', async () => {
+    await cases.redeem(params)
   })
 })
