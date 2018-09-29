@@ -39,7 +39,7 @@ module.exports = async (params) => {
   assert.equal(balances.buyer[0], balances.buyer[1])
   assert.equal(balances.hold[0], 0)
 
-  const time = (new Date()).getTime() + (48 * 60 * 60 * 1000)
+  const time = Math.floor((new Date()).getTime() / 1000) + (48 * 60 * 60)
 
   await truffleAssert.fails(
     hold.authorize(time, options.attacker),

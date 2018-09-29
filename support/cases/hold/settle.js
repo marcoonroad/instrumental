@@ -31,7 +31,7 @@ module.exports = async (params) => {
 
   const hold = await Hold.new(accounts[4], 100, options.seller)
 
-  const time = (new Date()).getTime() + (48 * 60 * 60 * 1000)
+  const time = Math.floor((new Date()).getTime() / 1000) + (48 * 60 * 60)
 
   await truffleAssert.fails(
     hold.authorize(time, options.attacker1),
