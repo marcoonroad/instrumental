@@ -18,6 +18,10 @@ module.exports = async (params) => {
     buyer: {
       from: accounts[4],
       value: 100
+    },
+    attacker: {
+      from: accounts[9],
+      value: 20
     }
   }
 
@@ -25,9 +29,22 @@ module.exports = async (params) => {
 
   const time = (new Date()).getTime() + (48 * 60 * 60 * 1000)
 
+  try {
+    await hold.authorize(time, options.attacker)
+    assert(false)
+  } catch (reason) {
+    assert(true)
+  }
   await hold.authorize(time, options.buyer)
 
   balances.buyer.push(await balanceOf(accounts[4]))
+
+  try {
+    await hold.settle(50, options.attacker)
+    assert(false)
+  } catch (reason) {
+    assert(true)
+  }
   await hold.settle(70, options.seller)
 
   balances.buyer.push(await balanceOf(accounts[4]))

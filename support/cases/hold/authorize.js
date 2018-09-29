@@ -21,6 +21,10 @@ module.exports = async (params) => {
     buyer: {
       from: accounts[3],
       value: 350
+    },
+    attacker: {
+      from: accounts[9],
+      value: 15
     }
   }
 
@@ -36,6 +40,12 @@ module.exports = async (params) => {
 
   const time = (new Date()).getTime() + (48 * 60 * 60 * 1000)
 
+  try {
+    await hold.authorize(time, options.attacker)
+    assert(false)
+  } catch (reason) {
+    assert(true)
+  }
   await hold.authorize(time, options.buyer)
 
   const status = await hold.status()
