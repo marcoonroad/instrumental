@@ -41,12 +41,10 @@ module.exports = async (params) => {
 
   const time = (new Date()).getTime() + (48 * 60 * 60 * 1000)
 
-  try {
-    await hold.authorize(time, options.attacker)
-    assert(false)
-  } catch (reason) {
-    assert(true)
-  }
+  await truffleAssert.fails(
+    hold.authorize(time, options.attacker),
+    truffleAssert.ErrorType.REVERT
+  )
   const txAuthorize = await hold.authorize(time, options.buyer)
 
   truffleAssert.eventEmitted(txAuthorize, 'LogAuthorizedHold', event => {

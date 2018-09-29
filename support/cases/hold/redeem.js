@@ -35,30 +35,24 @@ module.exports = async (params) => {
 
   const time = (new Date()).getTime() + (48 * 60 * 60 * 1000)
 
-  try {
-    await hold.authorize(time, options.attacker1)
-    assert(false)
-  } catch (reason) {
-    assert(true)
-  }
+  await truffleAssert.fails(
+    hold.authorize(time, options.attacker1),
+    truffleAssert.ErrorType.REVERT
+  )
   await hold.authorize(time, options.buyer)
 
   balances.buyer.push(await balanceOf(accounts[6]))
 
-  try {
-    await hold.settle(fromEther(0.9), options.attacker2)
-    assert(false)
-  } catch (reason) {
-    assert(true)
-  }
+  await truffleAssert.fails(
+    hold.settle(fromEther(0.9), options.attacker2),
+    truffleAssert.ErrorType.REVERT
+  )
   await hold.settle(fromEther(1.4), options.seller)
 
-  try {
-    await hold.redeem(options.attacker2)
-    assert(false)
-  } catch (reason) {
-    assert(true)
-  }
+  await truffleAssert.fails(
+    hold.redeem(options.attacker2),
+    truffleAssert.ErrorType.REVERT
+  )
   const txRedeem = await hold.redeem({ from: accounts[6] })
 
   truffleAssert.eventEmitted(txRedeem, 'LogRedeemedHold', event => {

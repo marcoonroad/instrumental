@@ -33,22 +33,18 @@ module.exports = async (params) => {
 
   const time = (new Date()).getTime() + (48 * 60 * 60 * 1000)
 
-  try {
-    await hold.authorize(time, options.attacker1)
-    assert(false)
-  } catch (reason) {
-    assert(true)
-  }
+  await truffleAssert.fails(
+    hold.authorize(time, options.attacker1),
+    truffleAssert.ErrorType.REVERT
+  )
   await hold.authorize(time, options.buyer)
 
   balances.buyer.push(await balanceOf(accounts[4]))
 
-  try {
-    await hold.settle(50, options.attacker2)
-    assert(false)
-  } catch (reason) {
-    assert(true)
-  }
+  await truffleAssert.fails(
+    hold.settle(50, options.attacker2),
+    truffleAssert.ErrorType.REVERT
+  )
   const txSettle = await hold.settle(70, options.seller)
 
   truffleAssert.eventEmitted(txSettle, 'LogSettledHold', event => {
