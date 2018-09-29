@@ -11,6 +11,10 @@ const {
   balanceOf, toEther, fromEther
 } = require('../support/account')
 
+const {
+  timeTravel
+} = require('../support/block')
+
 const Hold = artifacts.require('./Hold.sol')
 const truffleAssert = require('truffle-assertions')
 const cases = require('../support/cases/hold')
@@ -22,6 +26,7 @@ contract('Hold', accounts => {
     HoldStatus,
     assert,
     balanceOf,
+    timeTravel,
     toEther,
     fromEther,
     truffleAssert
@@ -41,5 +46,9 @@ contract('Hold', accounts => {
 
   it('should redeem a hold whenever it can', async () => {
     await cases.redeem(params)
+  })
+
+  it('should refund buyer if hold expires', async () => {
+    await cases.refund(params)
   })
 })

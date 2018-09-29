@@ -1,5 +1,3 @@
-'use strict'
-
 /* global web3 */
 
 const balanceOf = async account => {

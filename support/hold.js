@@ -1,5 +1,3 @@
-'use strict'
-
 const HoldStatus = {
   PENDING: 0,
   AUTHORIZED: 1,
