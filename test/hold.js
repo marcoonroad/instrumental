@@ -12,7 +12,7 @@ const {
 } = require('../support/account')
 
 const {
-  timeTravel
+  timeTravel, now
 } = require('../support/block')
 
 const Hold = artifacts.require('./Hold.sol')
@@ -29,7 +29,8 @@ contract('Hold', accounts => {
     timeTravel,
     toEther,
     fromEther,
-    truffleAssert
+    truffleAssert,
+    now
   }
 
   it('should create a hold', async () => {

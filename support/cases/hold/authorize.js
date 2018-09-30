@@ -5,6 +5,7 @@ module.exports = async (params) => {
   const accounts = params.accounts
   const balanceOf = params.balanceOf
   const truffleAssert = params.truffleAssert
+  const now = params.now
 
   const balances = {
     hold: [],
@@ -39,10 +40,18 @@ module.exports = async (params) => {
   assert.equal(balances.buyer[0], balances.buyer[1])
   assert.equal(balances.hold[0], 0)
 
-  const time = Math.floor((new Date()).getTime() / 1000) + (48 * 60 * 60)
+  const time = now() + (2 * 24 * 60 * 60)
 
   await truffleAssert.fails(
     hold.authorize(time, options.attacker),
+    truffleAssert.ErrorType.REVERT
+  )
+  await truffleAssert.fails(
+    hold.authorize(now() + (60 * 60), options.buyer),
+    truffleAssert.ErrorType.REVERT
+  )
+  await truffleAssert.fails(
+    hold.authorize(now() + (31 * 24 * 60 * 60), options.buyer),
     truffleAssert.ErrorType.REVERT
   )
   const txAuthorize = await hold.authorize(time, options.buyer)

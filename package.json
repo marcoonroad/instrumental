@@ -17,8 +17,8 @@
     "pretest:eth": "yarn run lint",
     "test:eth": "truffle test",
     "pretest": "yarn run net:on",
-    "posttest": "yarn run net:off",
-    "test": "yarn run test:eth || echo '=== Tests failed! ==='",
+    "test": "yarn run test:eth && yarn run net:off || yarn run test:break",
+    "test:break": "yarn run net:off && exit 1",
     "hook:commit": "lint-staged",
     "hook:push": "yarn run test"
   },

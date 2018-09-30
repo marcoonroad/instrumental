@@ -8,6 +8,7 @@ module.exports = async (params) => {
   const fromEther = params.fromEther
   const truffleAssert = params.truffleAssert
   const timeTravel = params.timeTravel
+  const now = params.now
 
   const balances = {
     hold: [],
@@ -34,7 +35,7 @@ module.exports = async (params) => {
 
   const hold = await Hold.new(accounts[6], fromEther(2), options.seller)
 
-  const time = Math.floor((new Date()).getTime() / 1000) + (48 * 60 * 60)
+  const time = now() + (2 * 24 * 60 * 60)
 
   await truffleAssert.fails(
     hold.authorize(time, options.attacker1),
@@ -49,7 +50,7 @@ module.exports = async (params) => {
     truffleAssert.ErrorType.REVERT
   )
 
-  const skipTime = Math.floor((new Date()).getTime() / 1000) + (72 * 60 * 60)
+  const skipTime = now() + (3 * 24 * 60 * 60)
   await timeTravel(skipTime)
 
   await truffleAssert.fails(

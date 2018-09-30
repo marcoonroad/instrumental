@@ -11,4 +11,7 @@ const timeTravel = async seconds => {
   await send('evm_mine')
 }
 
+const now = () => Math.floor((new Date()).getTime() / 1000)
+
 module.exports.timeTravel = timeTravel
+module.exports.now = now
