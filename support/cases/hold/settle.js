@@ -46,7 +46,7 @@ module.exports = async (params) => {
     hold.settle(50, options.attacker2),
     truffleAssert.ErrorType.REVERT
   )
-  const txSettle = await hold.settle(70, options.seller)
+  const txSettle = await hold.settle(100, options.seller)
 
   truffleAssert.eventEmitted(txSettle, 'LogSettledHold', event => {
     return event.seller === accounts[3] &&
@@ -66,8 +66,13 @@ module.exports = async (params) => {
   assert.equal(seller, accounts[3])
   assert.equal(buyer, accounts[4])
   assert.equal(estimatedAmount, 100)
-  assert.equal(settledAmount, 70)
+  assert.equal(settledAmount, 100)
   assert.equal(status.toNumber(), HoldStatus.SETTLED)
-  assert.equal(balances.hold[0], 30)
+  assert.equal(balances.hold[0], 0)
   assert.equal(balances.buyer[0], balances.buyer[1])
+
+  await truffleAssert.fails(
+    hold.redeem({ from: accounts[4] }),
+    truffleAssert.ErrorType.REVERT
+  )
 }
