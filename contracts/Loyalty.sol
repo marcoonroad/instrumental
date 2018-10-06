@@ -35,10 +35,10 @@ contract Loyalty {
     uint256 _rebateBasis
   ) public {
     require(1 <= _discountRate && _discountRate <= 5);
-    require(30 days <= _rebateBasis && _rebateBasis <= 12 * (30 days));
+    require(1 <= _rebateBasis && _rebateBasis <= 12);
 
     merchant = msg.sender;
-    rebateBasis = _rebateBasis;
+    rebateBasis = _rebateBasis * 30 days;
     discountRate = _discountRate;
 
     address loyalty = address(this);
