@@ -21,13 +21,13 @@ contract Loyalty {
   event LogLoyaltyPayment(
     address indexed customer,
     uint256 indexed timestamp,
-    uint256 amount
+    uint256 indexed amount
   );
 
   event LogLoyaltyCashback(
     address indexed customer,
     uint256 indexed timestamp,
-    uint256 reward
+    uint256 indexed reward
   );
 
   constructor(
@@ -46,10 +46,12 @@ contract Loyalty {
     emit LogLoyaltyProgram(merchant, loyalty, block.timestamp);
   }
 
-  function pay() public payable {
+  function () external payable {
     require(msg.sender != merchant);
+    require(msg.value >= 100);
 
     uint256 customerBalance = balanceOf[msg.sender];
+
     uint256 customerPart = (msg.value / 100) * discountRate;
     require(customerBalance + customerPart > 0);
 
