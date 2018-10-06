@@ -47,6 +47,7 @@ contract Loyalty {
   }
 
   function () external payable {
+    require(msg.data.length == 0);
     require(msg.sender != merchant);
     require(msg.value >= 100);
 
