@@ -1,0 +1,79 @@
+pragma solidity 0.4.24;
+
+// contract for a Cashback reward
+// under a Loyalty program
+
+contract Loyalty {
+
+  uint256 public rebateBasis;
+  uint256 public discountRate;
+  address public merchant;
+
+  mapping (address => uint256) public balanceOf;
+  mapping (address => uint256) public claimedAt;
+
+  event LogLoyaltyProgram(
+    address indexed merchant,
+    address indexed loyalty,
+    uint256 indexed timestamp
+  );
+
+  event LogLoyaltyPayment(
+    address indexed customer,
+    uint256 indexed timestamp,
+    uint256 amount
+  );
+
+  event LogLoyaltyCashback(
+    address indexed customer,
+    uint256 indexed timestamp,
+    uint256 reward
+  );
+
+  constructor(
+    uint256 _discountRate,
+    uint256 _rebateBasis
+  ) public {
+    require(1 <= _discountRate && _discountRate <= 5);
+    require(30 days <= _rebateBasis && _rebateBasis <= 12 * (30 days));
+
+    merchant = msg.sender;
+    rebateBasis = _rebateBasis;
+    discountRate = _discountRate;
+
+    address loyalty = address(this);
+
+    emit LogLoyaltyProgram(merchant, loyalty, block.timestamp);
+  }
+
+  function pay() public payable {
+    require(msg.sender != merchant);
+
+    uint256 customerBalance = balanceOf[msg.sender];
+    uint256 customerPart = (msg.value / 100) * discountRate;
+    require(customerBalance + customerPart > 0);
+
+    balanceOf[msg.sender] += customerPart;
+
+    uint256 merchantPart = msg.value - customerPart;
+    emit LogLoyaltyPayment(msg.sender, block.timestamp, msg.value);
+
+    merchant.transfer(merchantPart);
+  }
+
+  function cashback() public {
+    require(msg.sender != merchant);
+
+    uint256 customerBalance = balanceOf[msg.sender];
+    require(customerBalance > 0);
+
+    uint256 customerClaimDate = claimedAt[msg.sender];
+    require(block.timestamp - customerClaimDate > rebateBasis);
+
+    balanceOf[msg.sender] = 0;
+    emit LogLoyaltyCashback(msg.sender, block.timestamp, customerBalance);
+
+    msg.sender.transfer(customerBalance);
+  }
+
+}
