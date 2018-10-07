@@ -1,4 +1,9 @@
+sudo: required
 language: node_js
+
+env:
+  - BUILD_JOB_TYPE=test
+  - BUILD_JOB_TYPE=report
 
 node_js:
   - "8"
@@ -7,7 +12,7 @@ before_install:
   - export PATH=./node_modules/.bin:$PATH
 
 script:
-  - yarn test
+  - "yarn run $BUILD_JOB_TYPE"
 
 cache:
   yarn: true
