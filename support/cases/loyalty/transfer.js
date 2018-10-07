@@ -19,9 +19,9 @@ module.exports = async (params) => {
   const loyalty = await Loyalty.new(_discountRate, _rebateBasis, options)
 
   const timestamp = now()
-  const oldMerchantBalance = await balanceOf(accounts[3])
-  const oldCustomerBalance = await balanceOf(accounts[5])
-  const oldLoyaltyBalance = await balanceOf(loyalty.address)
+  const oldMerchantBalance = toEther(await balanceOf(accounts[3]))
+  const oldCustomerBalance = toEther(await balanceOf(accounts[5]))
+  const oldLoyaltyBalance = toEther(await balanceOf(loyalty.address))
   const amount = fromEther(2)
 
   const transferOptions = {
@@ -40,29 +40,40 @@ module.exports = async (params) => {
     )
   })
 
-  const newMerchantBalance = await balanceOf(accounts[3])
-  const newCustomerBalance = await balanceOf(accounts[5])
-  const newLoyaltyBalance = await balanceOf(loyalty.address)
+  await truffleAssert.fails(
+    loyalty.receive({ from: accounts[4], gasPrice: 0 }),
+    truffleAssert.ErrorType.REVERT
+  )
+  await loyalty.receive({ from: accounts[3], gasPrice: 0 })
 
-  assert.isAbove(newMerchantBalance, oldMerchantBalance)
-  assert.isBelow(newCustomerBalance, oldCustomerBalance)
-  assert.isAbove(newLoyaltyBalance, oldLoyaltyBalance)
+  const newMerchantBalance = toEther(await balanceOf(accounts[3]))
+  const newCustomerBalance = toEther(await balanceOf(accounts[5]))
+  const newLoyaltyBalance = toEther(await balanceOf(loyalty.address))
+
+  assert.isAbove(Number(newMerchantBalance), Number(oldMerchantBalance))
+  assert.isBelow(Number(newCustomerBalance), Number(oldCustomerBalance))
+  assert.isAbove(Number(newLoyaltyBalance), Number(oldLoyaltyBalance))
 
   const paidAmount = 2
   const discountedAmount = 2 * 0.05
   const merchantAmount = paidAmount - discountedAmount
 
   assert.equal(
-    Number(toEther(newMerchantBalance)),
-    Number(toEther(oldMerchantBalance)) + Number(merchantAmount)
+    Number(newMerchantBalance),
+    Number(oldMerchantBalance) + Number(merchantAmount)
   )
   assert.equal(
-    Number(toEther(newLoyaltyBalance)),
-    Number(toEther(oldLoyaltyBalance)) + Number(discountedAmount)
+    Number(newLoyaltyBalance),
+    Number(oldLoyaltyBalance) + Number(discountedAmount)
   )
 
+  // merchant himself can't enter loyalty program
   await truffleAssert.fails(
-    loyalty.sendTransaction({ from: accounts[3], value: fromEther(1.2) }),
+    loyalty.sendTransaction({
+      from: accounts[3],
+      value: fromEther(1.2),
+      gasPrice: 0
+    }),
     truffleAssert.ErrorType.REVERT
   )
 }

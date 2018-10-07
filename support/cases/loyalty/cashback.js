@@ -9,18 +9,16 @@ module.exports = async (params) => {
   const timeTravel = params.timeTravel
   const now = params.now
 
-  const options = {
-    from: accounts[7],
-    gasPrice: 0
-  }
-
   const _discountRate = 1
   const _rebateBasis = 12
 
-  const loyalty = await Loyalty.new(_discountRate, _rebateBasis, options)
+  const loyalty = await Loyalty.new(_discountRate, _rebateBasis, {
+    from: accounts[7],
+    gasPrice: 0
+  })
 
-  const oldCustomerBalance = toEther(Number(await balanceOf(accounts[4])))
-  const oldMerchantBalance = toEther(Number(await balanceOf(accounts[7])))
+  const oldCustomerBalance = toEther(await balanceOf(accounts[4]))
+  const oldMerchantBalance = toEther(await balanceOf(accounts[7]))
 
   await loyalty.sendTransaction({
     from: accounts[4],
@@ -33,6 +31,12 @@ module.exports = async (params) => {
     value: fromEther(1),
     gasPrice: 0
   })
+
+  await truffleAssert.fails(
+    loyalty.receive({ from: accounts[2], gasPrice: 0 }),
+    truffleAssert.ErrorType.REVERT
+  )
+  await loyalty.receive({ from: accounts[7], gasPrice: 0 })
 
   // bugfix test part:
   // first claimed cashback doesn't respect
@@ -51,14 +55,14 @@ module.exports = async (params) => {
     truffleAssert.ErrorType.REVERT
   )
 
-  const oldLoyaltyBalance = toEther(Number(await balanceOf(loyalty.address)))
+  const oldLoyaltyBalance = toEther(await balanceOf(loyalty.address))
 
   const timestamp = now()
   const txCashback = await loyalty.cashback({ from: accounts[4], gasPrice: 0 })
 
-  const newCustomerBalance = toEther(Number(await balanceOf(accounts[4])))
-  const newMerchantBalance = toEther(Number(await balanceOf(accounts[7])))
-  const newLoyaltyBalance = toEther(Number(await balanceOf(loyalty.address)))
+  const newCustomerBalance = toEther(await balanceOf(accounts[4]))
+  const newMerchantBalance = toEther(await balanceOf(accounts[7]))
+  const newLoyaltyBalance = toEther(await balanceOf(loyalty.address))
 
   const totalAmount = 4
   const discountedAmount = totalAmount * 0.01

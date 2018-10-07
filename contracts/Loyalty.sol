@@ -8,6 +8,7 @@ contract Loyalty {
   uint256 public rebateBasis;
   uint256 public discountRate;
   address public merchant;
+  uint256 public merchantBalance;
 
   mapping (address => uint256) public balanceOf;
   mapping (address => uint256) public claimedAt;
@@ -64,7 +65,18 @@ contract Loyalty {
     }
 
     uint256 merchantPart = msg.value - customerPart;
+    require(merchantBalance + merchantPart > 0);
+    merchantBalance += merchantPart;
+
     emit LogLoyaltyPayment(msg.sender, block.timestamp, msg.value);
+  }
+
+  function receive() public {
+    require(msg.sender == merchant);
+    require(merchantBalance > 0);
+
+    uint256 merchantPart = merchantBalance;
+    merchantBalance = 0;
 
     merchant.transfer(merchantPart);
   }
