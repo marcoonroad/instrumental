@@ -34,19 +34,31 @@ module.exports = async (params) => {
     gasPrice: 0
   })
 
-  const skipTime = now() + (12 * 30 * 24 * 60 * 60)
-  await timeTravel(skipTime)
-
+  // bugfix test part:
+  // first claimed cashback doesn't respect
+  // rebate basis interval, so immediate
+  // cashbacks are possible on the first time
   await truffleAssert.fails(
-    loyalty.cashback({ from: accounts[5] }),
+    loyalty.cashback({ from: accounts[4], gasPrice: 0 }),
     truffleAssert.ErrorType.REVERT
   )
+
+  // forwards time by 12 months
+  await timeTravel(12 * 30 * 24 * 60 * 60)
+
+  await truffleAssert.fails(
+    loyalty.cashback({ from: accounts[5], gasPrice: 0 }),
+    truffleAssert.ErrorType.REVERT
+  )
+
+  const oldLoyaltyBalance = toEther(Number(await balanceOf(loyalty.address)))
 
   const timestamp = now()
   const txCashback = await loyalty.cashback({ from: accounts[4], gasPrice: 0 })
 
   const newCustomerBalance = toEther(Number(await balanceOf(accounts[4])))
   const newMerchantBalance = toEther(Number(await balanceOf(accounts[7])))
+  const newLoyaltyBalance = toEther(Number(await balanceOf(loyalty.address)))
 
   const totalAmount = 4
   const discountedAmount = totalAmount * 0.01
@@ -67,5 +79,31 @@ module.exports = async (params) => {
   assert.equal(
     Number(newCustomerBalance),
     Number(oldCustomerBalance) - Number(merchantAmount)
+  )
+  assert.equal(
+    Number(newLoyaltyBalance),
+    Number(oldLoyaltyBalance) - Number(discountedAmount)
+  )
+
+  // empty customer cashback balance
+  await truffleAssert.fails(
+    loyalty.cashback({ from: accounts[4], gasPrice: 0 }),
+    truffleAssert.ErrorType.REVERT
+  )
+
+  // bugfix test part:
+  // rebate basis interval must reset after claimed cashback
+  await loyalty.sendTransaction({
+    from: accounts[4],
+    value: fromEther(5),
+    gasPrice: 0
+  })
+
+  // forwards time by 1 month
+  await timeTravel(30 * 24 * 60 * 60)
+
+  await truffleAssert.fails(
+    loyalty.cashback({ from: accounts[4], gasPrice: 0 }),
+    truffleAssert.ErrorType.REVERT
   )
 }

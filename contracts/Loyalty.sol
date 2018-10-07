@@ -58,6 +58,11 @@ contract Loyalty {
 
     balanceOf[msg.sender] += customerPart;
 
+    // first customer payment
+    if (claimedAt[msg.sender] == 0) {
+      claimedAt[msg.sender] = block.timestamp;
+    }
+
     uint256 merchantPart = msg.value - customerPart;
     emit LogLoyaltyPayment(msg.sender, block.timestamp, msg.value);
 
@@ -74,6 +79,7 @@ contract Loyalty {
     require(block.timestamp - customerClaimDate > rebateBasis);
 
     balanceOf[msg.sender] = 0;
+    claimedAt[msg.sender] = block.timestamp;
     emit LogLoyaltyCashback(msg.sender, block.timestamp, customerBalance);
 
     msg.sender.transfer(customerBalance);
