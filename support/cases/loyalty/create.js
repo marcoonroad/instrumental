@@ -12,6 +12,10 @@ module.exports = async (params) => {
   const _discountRate = 3
   const _rebateBasis = 2
 
+  await truffleAssert.fails(
+    Loyalty.new(10, 18, { from: accounts[1], gasPrice: 0 }),
+    truffleAssert.ErrorType.REVERT
+  )
   const timestamp = now()
   const loyalty = await Loyalty.new(_discountRate, _rebateBasis, {
     from: accounts[1],

@@ -30,6 +30,19 @@ module.exports = async (params) => {
     gasPrice: 0
   }
 
+  await truffleAssert.fails(
+    loyalty.sendTransaction({
+      from: accounts[5],
+      value: 95,
+      gasPrice: 0
+    }),
+    truffleAssert.ErrorType.REVERT
+  )
+  // can't pull when merchant balance is 0
+  await truffleAssert.fails(
+    loyalty.receive({ from: accounts[3], gasPrice: 0 }),
+    truffleAssert.ErrorType.REVERT
+  )
   const txTransfer = await loyalty.sendTransaction(transferOptions)
 
   truffleAssert.eventEmitted(txTransfer, 'LogLoyaltyPayment', event => {

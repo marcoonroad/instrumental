@@ -94,6 +94,11 @@ module.exports = async (params) => {
     loyalty.cashback({ from: accounts[4], gasPrice: 0 }),
     truffleAssert.ErrorType.REVERT
   )
+  // can't cashback from merchant account
+  await truffleAssert.fails(
+    loyalty.cashback({ from: accounts[7], gasPrice: 0 }),
+    truffleAssert.ErrorType.REVERT
+  )
 
   // bugfix test part:
   // rebate basis interval must reset after claimed cashback

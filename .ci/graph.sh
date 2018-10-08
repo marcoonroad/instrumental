@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 function plot {
-  IMAGE=`echo $1 | sed s/sol/png/`
-  cat $1 | solgraph | dot -Tpng -o $IMAGE
+  IMAGE=$(echo "${1//sol/png}")
+  solgraph < $1 | dot -Tpng -o $IMAGE
 }
 
 cd contracts
-for CONTRACT in `ls *.sol`
+for CONTRACT in $(ls *.sol)
 do
   plot $CONTRACT
 done

@@ -47,6 +47,14 @@ module.exports = async (params) => {
     truffleAssert.ErrorType.REVERT
   )
   await truffleAssert.fails(
+    hold.authorize(time, {
+      from: accounts[9],
+      value: 350,
+      gasPrice: 0
+    }),
+    truffleAssert.ErrorType.REVERT
+  )
+  await truffleAssert.fails(
     hold.authorize(now() + (60 * 60), options.buyer),
     truffleAssert.ErrorType.REVERT
   )
