@@ -50,8 +50,8 @@ module.exports = async (params) => {
     truffleAssert.ErrorType.REVERT
   )
 
-  const skipTime = now() + (3 * 24 * 60 * 60)
-  await timeTravel(skipTime)
+  // forwards time by 3 days
+  await timeTravel(3 * 24 * 60 * 60)
 
   await truffleAssert.fails(
     hold.settle(fromEther(1.4), options.seller),

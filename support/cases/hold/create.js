@@ -18,7 +18,14 @@ module.exports = async (params) => {
   const options = {
     from: accounts[1]
   }
-
+  await truffleAssert.fails(
+    Hold.new(accounts[1], 200, options),
+    truffleAssert.ErrorType.REVERT
+  )
+  await truffleAssert.fails(
+    Hold.new(accounts[2], 0, options),
+    truffleAssert.ErrorType.REVERT
+  )
   const hold = await Hold.new(accounts[2], 200, options)
 
   const txHold = await truffleAssert.createTransactionResult(
@@ -56,4 +63,15 @@ module.exports = async (params) => {
   assert.equal(buyer, accounts[2])
   assert.equal(seller, accounts[1])
   assert.equal(status.toNumber(), HoldStatus.PENDING)
+
+  // can't settle without prior authorization
+  await truffleAssert.fails(
+    hold.settle(150, { from: accounts[1], gasPrice: 0 }),
+    truffleAssert.ErrorType.REVERT
+  )
+  // can't refund without prior authorization
+  await truffleAssert.fails(
+    hold.refund({ from: accounts[2], gasPrice: 0 }),
+    truffleAssert.ErrorType.REVERT
+  )
 }
