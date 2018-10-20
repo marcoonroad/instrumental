@@ -1,10 +1,13 @@
 pragma solidity 0.4.24;
 
+import "./Clock.sol";
+
 // contract for a Cashback reward
 // under a Loyalty program
 
 contract Loyalty {
 
+  Clock public clock;
   uint256 public rebateBasis;
   uint256 public discountRate;
   address public merchant;
@@ -41,13 +44,16 @@ contract Loyalty {
     merchant = msg.sender;
     rebateBasis = _rebateBasis * 30 days;
     discountRate = _discountRate;
+    clock = new Clock();
 
     address loyalty = address(this);
 
-    emit LogLoyaltyProgram(merchant, loyalty, block.timestamp);
+    emit LogLoyaltyProgram(merchant, loyalty, clock.checkedAt());
   }
 
   function () external payable {
+    clock.tick();
+
     require(msg.data.length == 0);
     require(msg.sender != merchant);
     require(msg.value >= 100);
@@ -61,14 +67,14 @@ contract Loyalty {
 
     // first customer payment
     if (claimedAt[msg.sender] == 0) {
-      claimedAt[msg.sender] = block.timestamp;
+      claimedAt[msg.sender] = clock.checkedAt();
     }
 
     uint256 merchantPart = msg.value - customerPart;
     require(merchantBalance + merchantPart > 0);
     merchantBalance += merchantPart;
 
-    emit LogLoyaltyPayment(msg.sender, block.timestamp, msg.value);
+    emit LogLoyaltyPayment(msg.sender, clock.checkedAt(), msg.value);
   }
 
   function receive() public {
@@ -82,17 +88,19 @@ contract Loyalty {
   }
 
   function cashback() public {
+    clock.tick();
+
     require(msg.sender != merchant);
 
     uint256 customerBalance = balanceOf[msg.sender];
     require(customerBalance > 0);
 
     uint256 customerClaimDate = claimedAt[msg.sender];
-    require(block.timestamp - customerClaimDate > rebateBasis);
+    require(clock.checkedAt() - customerClaimDate > rebateBasis);
 
     balanceOf[msg.sender] = 0;
-    claimedAt[msg.sender] = block.timestamp;
-    emit LogLoyaltyCashback(msg.sender, block.timestamp, customerBalance);
+    claimedAt[msg.sender] = clock.checkedAt();
+    emit LogLoyaltyCashback(msg.sender, clock.checkedAt(), customerBalance);
 
     msg.sender.transfer(customerBalance);
   }

@@ -1,5 +1,7 @@
 pragma solidity 0.4.24;
 
+import "./Clock.sol";
+
 // Authorization Hold contract
 // a.k.a Preauthorization
 
@@ -13,6 +15,7 @@ contract Hold {
     REFUNDED
   }
 
+  Clock public clock;
   address public buyer;
   address public seller;
   uint256 public estimatedAmount;
@@ -68,28 +71,33 @@ contract Hold {
     buyer = _buyer;
     estimatedAmount = _estimatedAmount;
     status = HoldStatus.PENDING;
+    clock = new Clock();
 
     address hold = address(this);
-    emit LogPendingHold(seller, hold, buyer, block.timestamp);
+    emit LogPendingHold(seller, hold, buyer, clock.checkedAt());
   }
 
   function authorize(uint256 _expiredAt) public payable {
+    clock.tick();
+
     require(msg.value == estimatedAmount);
     require(msg.sender == buyer);
-    require(_expiredAt > block.timestamp + 24 hours);
-    require(_expiredAt < block.timestamp + 30 days);
+    require(_expiredAt > clock.checkedAt() + 24 hours);
+    require(_expiredAt < clock.checkedAt() + 30 days);
 
     expiredAt = _expiredAt;
     status = HoldStatus.AUTHORIZED;
 
     address hold = address(this);
-    emit LogAuthorizedHold(seller, hold, buyer, block.timestamp);
+    emit LogAuthorizedHold(seller, hold, buyer, clock.checkedAt());
   }
 
   function refund() public {
+    clock.tick();
+
     require(status == HoldStatus.AUTHORIZED);
     require(msg.sender == buyer);
-    require(block.timestamp > expiredAt);
+    require(clock.checkedAt() > expiredAt);
 
     status = HoldStatus.REFUNDED;
 
@@ -97,13 +105,15 @@ contract Hold {
 
     address hold = address(this);
 
-    emit LogRefundedHold(seller, hold, buyer, block.timestamp);
+    emit LogRefundedHold(seller, hold, buyer, clock.checkedAt());
   }
 
   function settle(uint256 _settledAmount) public {
+    clock.tick();
+
     require(status == HoldStatus.AUTHORIZED);
     require(msg.sender == seller);
-    require(block.timestamp < expiredAt);
+    require(clock.checkedAt() < expiredAt);
     require(_settledAmount >= 1);
     require(_settledAmount <= estimatedAmount);
 
@@ -113,10 +123,12 @@ contract Hold {
     seller.transfer(settledAmount);
 
     address hold = address(this);
-    emit LogSettledHold(seller, hold, buyer, block.timestamp);
+    emit LogSettledHold(seller, hold, buyer, clock.checkedAt());
   }
 
   function redeem() public {
+    clock.tick();
+
     require(msg.sender == buyer);
     require(status == HoldStatus.SETTLED);
     require(settledAmount < estimatedAmount);
@@ -128,7 +140,7 @@ contract Hold {
 
     address hold = address(this);
 
-    emit LogRedeemedHold(seller, hold, buyer, block.timestamp);
+    emit LogRedeemedHold(seller, hold, buyer, clock.checkedAt());
   }
 
 }

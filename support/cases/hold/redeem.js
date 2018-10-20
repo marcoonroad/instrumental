@@ -8,6 +8,7 @@ module.exports = async (params) => {
   const fromEther = params.fromEther
   const truffleAssert = params.truffleAssert
   const now = params.now
+  const timeTravel = params.timeTravel
 
   const balances = {
     hold: [],
@@ -36,6 +37,8 @@ module.exports = async (params) => {
 
   const time = now() + (2 * 24 * 60 * 60)
 
+  await timeTravel(35) // seconds
+
   await truffleAssert.fails(
     hold.authorize(time, options.attacker1),
     truffleAssert.ErrorType.REVERT
@@ -44,11 +47,15 @@ module.exports = async (params) => {
 
   balances.buyer.push(await balanceOf(accounts[6]))
 
+  await timeTravel(35) // seconds
+
   await truffleAssert.fails(
     hold.settle(fromEther(0.9), options.attacker2),
     truffleAssert.ErrorType.REVERT
   )
   await hold.settle(fromEther(1.4), options.seller)
+
+  await timeTravel(35) // seconds
 
   await truffleAssert.fails(
     hold.redeem(options.attacker2),

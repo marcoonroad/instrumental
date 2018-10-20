@@ -7,6 +7,7 @@ module.exports = async (params) => {
   const toEther = params.toEther
   const truffleAssert = params.truffleAssert
   const now = params.now
+  const timeTravel = params.timeTravel
 
   const options = {
     from: accounts[3],
@@ -29,6 +30,8 @@ module.exports = async (params) => {
     value: amount,
     gasPrice: 0
   }
+
+  await timeTravel(35) // seconds
 
   await truffleAssert.fails(
     loyalty.sendTransaction({
@@ -53,6 +56,8 @@ module.exports = async (params) => {
     )
   })
 
+  // for the merchant to receive his own money, it
+  // doesn't depend on time, it's only depend on balance
   await truffleAssert.fails(
     loyalty.receive({ from: accounts[4], gasPrice: 0 }),
     truffleAssert.ErrorType.REVERT

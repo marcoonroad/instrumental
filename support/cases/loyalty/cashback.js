@@ -20,11 +20,15 @@ module.exports = async (params) => {
   const oldCustomerBalance = toEther(await balanceOf(accounts[4]))
   const oldMerchantBalance = toEther(await balanceOf(accounts[7]))
 
+  await timeTravel(35) // seconds
+
   await loyalty.sendTransaction({
     from: accounts[4],
     value: fromEther(3),
     gasPrice: 0
   })
+
+  await timeTravel(35) // seconds
 
   await loyalty.sendTransaction({
     from: accounts[4],
@@ -99,6 +103,8 @@ module.exports = async (params) => {
     loyalty.cashback({ from: accounts[7], gasPrice: 0 }),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
 
   // bugfix test part:
   // rebate basis interval must reset after claimed cashback

@@ -37,6 +37,8 @@ module.exports = async (params) => {
 
   const time = now() + (2 * 24 * 60 * 60)
 
+  await timeTravel(35) // seconds
+
   await truffleAssert.fails(
     hold.authorize(time, options.attacker1),
     truffleAssert.ErrorType.REVERT
