@@ -38,15 +38,23 @@ module.exports = async (params) => {
   const time = now() + (2 * 24 * 60 * 60)
 
   await timeTravel(35) // seconds
+  await truffleAssert.fails(
+    hold.refund({ from: accounts[6] }),
+    truffleAssert.ErrorType.REVERT
+  )
 
+  await timeTravel(35) // seconds
   await truffleAssert.fails(
     hold.authorize(time, options.attacker1),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   await hold.authorize(time, options.buyer)
 
   balances.buyer.push(await balanceOf(accounts[6]))
 
+  await timeTravel(35) // seconds
   await truffleAssert.fails(
     hold.settle(fromEther(0.9), options.attacker2),
     truffleAssert.ErrorType.REVERT
@@ -54,16 +62,18 @@ module.exports = async (params) => {
 
   // forwards time by 3 days
   await timeTravel(3 * 24 * 60 * 60)
-
   await truffleAssert.fails(
     hold.settle(fromEther(1.4), options.seller),
     truffleAssert.ErrorType.REVERT
   )
 
+  await timeTravel(35) // seconds
   await truffleAssert.fails(
     hold.refund(options.attacker2),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   const txRefund = await hold.refund({ from: accounts[6] })
 
   truffleAssert.eventEmitted(txRefund, 'LogRefundedHold', event => {

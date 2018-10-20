@@ -44,11 +44,12 @@ module.exports = async (params) => {
   const time = now() + (2 * 24 * 60 * 60)
 
   await timeTravel(35) // seconds
-
   await truffleAssert.fails(
     hold.authorize(time, options.attacker),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   await truffleAssert.fails(
     hold.authorize(time, {
       from: accounts[9],
@@ -57,14 +58,20 @@ module.exports = async (params) => {
     }),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   await truffleAssert.fails(
     hold.authorize(now() + (60 * 60), options.buyer),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   await truffleAssert.fails(
     hold.authorize(now() + (31 * 24 * 60 * 60), options.buyer),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   const txAuthorize = await hold.authorize(time, options.buyer)
 
   truffleAssert.eventEmitted(txAuthorize, 'LogAuthorizedHold', event => {

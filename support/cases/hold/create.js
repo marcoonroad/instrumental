@@ -26,6 +26,12 @@ module.exports = async (params) => {
     Hold.new(accounts[2], 0, options),
     truffleAssert.ErrorType.REVERT
   )
+
+  const nullAddress = '0x' + '0'.repeat(40)
+  await truffleAssert.fails(
+    Hold.new(nullAddress, 300, options),
+    truffleAssert.ErrorType.REVERT
+  )
   const hold = await Hold.new(accounts[2], 200, options)
 
   const txHold = await truffleAssert.createTransactionResult(

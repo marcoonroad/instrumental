@@ -36,41 +36,57 @@ module.exports = async (params) => {
   const time = now() + (2 * 24 * 60 * 60)
 
   await timeTravel(35) // seconds
+  await truffleAssert.fails(
+    hold.settle(100, options.seller),
+    truffleAssert.ErrorType.REVERT
+  )
 
+  await timeTravel(35) // seconds
   await truffleAssert.fails(
     hold.authorize(time, options.attacker1),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   await hold.authorize(time, options.buyer)
 
   balances.buyer.push(await balanceOf(accounts[4]))
 
   await timeTravel(35) // seconds
-
   await truffleAssert.fails(
     hold.settle(50, options.attacker2),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   // can't redeem without prior settlement
   await truffleAssert.fails(
     hold.redeem({ from: accounts[4], gasPrice: 0 }),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   // can't settle amount greater than authorized one
   await truffleAssert.fails(
     hold.settle(101, { from: accounts[3], gasPrice: 0 }),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   // can't settle empty amount, minimal is 1
   await truffleAssert.fails(
     hold.settle(0, { from: accounts[3], gasPrice: 0 }),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   // can't refund without expired time
   await truffleAssert.fails(
     hold.refund({ from: accounts[4], gasPrice: 0 }),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   const txSettle = await hold.settle(100, options.seller)
 
   truffleAssert.eventEmitted(txSettle, 'LogSettledHold', event => {
@@ -96,6 +112,7 @@ module.exports = async (params) => {
   assert.equal(balances.hold[0], 0)
   assert.equal(balances.buyer[0], balances.buyer[1])
 
+  await timeTravel(35) // seconds
   // can't redeem without remaining amount
   await truffleAssert.fails(
     hold.redeem({ from: accounts[4] }),

@@ -32,7 +32,6 @@ module.exports = async (params) => {
   }
 
   await timeTravel(35) // seconds
-
   await truffleAssert.fails(
     loyalty.sendTransaction({
       from: accounts[5],
@@ -41,11 +40,14 @@ module.exports = async (params) => {
     }),
     truffleAssert.ErrorType.REVERT
   )
+
   // can't pull when merchant balance is 0
   await truffleAssert.fails(
     loyalty.receive({ from: accounts[3], gasPrice: 0 }),
     truffleAssert.ErrorType.REVERT
   )
+
+  await timeTravel(35) // seconds
   const txTransfer = await loyalty.sendTransaction(transferOptions)
 
   truffleAssert.eventEmitted(txTransfer, 'LogLoyaltyPayment', event => {
@@ -85,6 +87,7 @@ module.exports = async (params) => {
     Number(oldLoyaltyBalance) + Number(discountedAmount)
   )
 
+  await timeTravel(35) // seconds
   // merchant himself can't enter loyalty program
   await truffleAssert.fails(
     loyalty.sendTransaction({
