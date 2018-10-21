@@ -13,11 +13,13 @@ module.exports = async (params) => {
     seller: []
   }
 
+  // update tracked balances
   balances.seller.push(await balanceOf(accounts[1]))
   balances.buyer.push(await balanceOf(accounts[2]))
 
   const options = {
-    from: accounts[1]
+    from: accounts[1],
+    gasPrice: 0
   }
   await truffleAssert.reverts(
     Hold.new(accounts[1], 200, options),
@@ -45,11 +47,12 @@ module.exports = async (params) => {
       event.hold === hold.address
   })
 
+  // update tracked balances
   balances.seller.push(await balanceOf(accounts[1]))
   balances.buyer.push(await balanceOf(accounts[2]))
   balances.hold.push(await balanceOf(hold.address))
 
-  assert.isAbove(balances.seller[0], balances.seller[1])
+  assert.equal(balances.seller[0], balances.seller[1])
   assert.equal(balances.buyer[0], balances.buyer[1])
   assert.equal(balances.hold[0], 0)
 
@@ -58,6 +61,7 @@ module.exports = async (params) => {
   const seller = await hold.seller()
   const status = await hold.status()
 
+  // update tracked balances
   balances.seller.push(await balanceOf(accounts[1]))
   balances.buyer.push(await balanceOf(accounts[2]))
   balances.hold.push(await balanceOf(hold.address))

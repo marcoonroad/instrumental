@@ -18,18 +18,22 @@ module.exports = async (params) => {
 
   const options = {
     seller: {
-      from: accounts[2]
+      from: accounts[2],
+      gasPrice: 0
     },
     buyer: {
       from: accounts[6],
+      gasPrice: 0,
       value: fromEther(2)
     },
     attacker1: {
       from: accounts[9],
+      gasPrice: 0,
       value: fromEther(1)
     },
     attacker2: {
-      from: accounts[8]
+      from: accounts[8],
+      gasPrice: 0
     }
   }
 
@@ -74,7 +78,7 @@ module.exports = async (params) => {
   )
 
   await timeTravel(35) // seconds
-  const txRefund = await hold.refund({ from: accounts[6] })
+  const txRefund = await hold.refund({ from: accounts[6], gasPrice: 0 })
 
   truffleAssert.eventEmitted(txRefund, 'LogRefundedHold', event => {
     return event.seller === accounts[2] &&
@@ -97,5 +101,5 @@ module.exports = async (params) => {
   assert.equal(toEther(settledAmount), 0)
   assert.equal(status.toNumber(), HoldStatus.REFUNDED)
   assert.equal(balances.hold[0], 0)
-  assert.isBelow(balances.buyer[0], balances.buyer[1])
+  assert.isBelow(balances.buyer[0], balances.buyer[1]) // fails??
 }

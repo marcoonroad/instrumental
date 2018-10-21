@@ -18,17 +18,21 @@ module.exports = async (params) => {
 
   const options = {
     seller: {
-      from: accounts[2]
+      from: accounts[2],
+      gasPrice: 0
     },
     buyer: {
       from: accounts[6],
-      value: fromEther(2)
+      value: fromEther(2),
+      gasPrice: 0
     },
     attacker1: {
+      gasPrice: 0,
       from: accounts[9],
       value: fromEther(1)
     },
     attacker2: {
+      gasPrice: 0,
       from: accounts[8]
     }
   }
@@ -46,6 +50,7 @@ module.exports = async (params) => {
   await timeTravel(35) // seconds
   await hold.authorize(time, options.buyer)
 
+  // update tracked balances
   balances.buyer.push(await balanceOf(accounts[6]))
 
   await timeTravel(35) // seconds
@@ -53,6 +58,9 @@ module.exports = async (params) => {
     hold.settle(fromEther(0.9), options.attacker2),
     'E_HOLD_ONLY_SELLER'
   )
+
+  // update tracked balances
+  balances.seller.push(await balanceOf(accounts[2]))
 
   await timeTravel(35) // seconds
   await hold.settle(fromEther(1.4), options.seller)
@@ -64,7 +72,7 @@ module.exports = async (params) => {
   )
 
   await timeTravel(35) // seconds
-  const txRedeem = await hold.redeem({ from: accounts[6] })
+  const txRedeem = await hold.redeem({ from: accounts[6], gasPrice: 0 })
 
   truffleAssert.eventEmitted(txRedeem, 'LogRedeemedHold', event => {
     return event.seller === accounts[2] &&
@@ -72,8 +80,10 @@ module.exports = async (params) => {
       event.hold === hold.address
   })
 
+  // update tracked balances
   balances.buyer.push(await balanceOf(accounts[6]))
   balances.hold.push(await balanceOf(hold.address))
+  balances.seller.push(await balanceOf(accounts[2]))
 
   const estimatedAmount = await hold.estimatedAmount()
   const settledAmount = await hold.settledAmount()
@@ -87,5 +97,6 @@ module.exports = async (params) => {
   assert.equal(toEther(settledAmount), 1.4)
   assert.equal(status.toNumber(), HoldStatus.REDEEMED)
   assert.equal(balances.hold[0], 0)
-  assert.isBelow(balances.buyer[0], balances.buyer[1])
+  assert.equal(Number(balances.seller[0]) + Number(fromEther(1.4)), balances.seller[1])
+  assert.equal(Number(balances.buyer[0]) + Number(fromEther(0.6)), balances.buyer[1])
 }

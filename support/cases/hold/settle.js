@@ -16,18 +16,22 @@ module.exports = async (params) => {
 
   const options = {
     seller: {
-      from: accounts[3]
+      from: accounts[3],
+      gasPrice: 0
     },
     buyer: {
       from: accounts[4],
+      gasPrice: 0,
       value: 100
     },
     attacker1: {
       from: accounts[9],
+      gasPrice: 0,
       value: 100
     },
     attacker2: {
-      from: accounts[8]
+      from: accounts[8],
+      gasPrice: 0
     }
   }
 
@@ -51,6 +55,7 @@ module.exports = async (params) => {
   await hold.authorize(time, options.buyer)
 
   balances.buyer.push(await balanceOf(accounts[4]))
+  balances.seller.push(await balanceOf(accounts[3]))
 
   await timeTravel(35) // seconds
   await truffleAssert.reverts(
@@ -95,6 +100,7 @@ module.exports = async (params) => {
       event.hold === hold.address
   })
 
+  balances.seller.push(await balanceOf(accounts[3]))
   balances.buyer.push(await balanceOf(accounts[4]))
   balances.hold.push(await balanceOf(hold.address))
 
@@ -104,6 +110,7 @@ module.exports = async (params) => {
   const seller = await hold.seller()
   const buyer = await hold.buyer()
 
+  assert.equal(balances.seller[0] + 100, balances.buyer[1])
   assert.equal(seller, accounts[3])
   assert.equal(buyer, accounts[4])
   assert.equal(estimatedAmount, 100)
@@ -115,7 +122,7 @@ module.exports = async (params) => {
   await timeTravel(35) // seconds
   // can't redeem without remaining amount
   await truffleAssert.reverts(
-    hold.redeem({ from: accounts[4] }),
+    hold.redeem({ from: accounts[4], gasPrice: 0 }),
     'E_HOLD_NOT_REDEEMABLE'
   )
 }

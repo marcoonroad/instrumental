@@ -14,30 +14,35 @@ module.exports = async (params) => {
     seller: []
   }
 
+  // update tracked balances
   balances.seller.push(await balanceOf(accounts[2]))
   balances.buyer.push(await balanceOf(accounts[3]))
 
   const options = {
     seller: {
-      from: accounts[2]
+      from: accounts[2],
+      gasPrice: 0
     },
     buyer: {
       from: accounts[3],
+      gasPrice: 0,
       value: 350
     },
     attacker: {
       from: accounts[9],
+      gasPrice: 0,
       value: 15
     }
   }
 
   const hold = await Hold.new(accounts[3], 350, options.seller)
 
+  // update tracked balances
   balances.seller.push(await balanceOf(accounts[2]))
   balances.buyer.push(await balanceOf(accounts[3]))
   balances.hold.push(await balanceOf(hold.address))
 
-  assert.isAbove(balances.seller[0], balances.seller[1])
+  assert.equal(balances.seller[0], balances.seller[1])
   assert.equal(balances.buyer[0], balances.buyer[1])
   assert.equal(balances.hold[0], 0)
 
@@ -86,12 +91,13 @@ module.exports = async (params) => {
   const seller = await hold.seller()
   const estimatedAmount = await hold.estimatedAmount()
 
+  // update tracked balances
   balances.seller.push(await balanceOf(accounts[2]))
   balances.buyer.push(await balanceOf(accounts[3]))
   balances.hold.push(await balanceOf(hold.address))
 
   assert.equal(balances.seller[1], balances.seller[2])
-  assert.isAbove(balances.buyer[1], balances.buyer[2])
+  assert.equal(balances.buyer[1] - 350, balances.buyer[2])
   assert.equal(balances.hold[1], 350)
   assert.equal(status.toNumber(), HoldStatus.AUTHORIZED)
   assert.equal(expiredAt, time)
