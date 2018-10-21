@@ -1,11 +1,14 @@
 pragma solidity 0.4.24;
 
 import "./Clock.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 // Authorization Hold contract
 // a.k.a Preauthorization
 
 contract Hold {
+
+  using SafeMath for uint256;
 
   enum HoldStatus {
     PENDING,
@@ -84,8 +87,8 @@ contract Hold {
     require(msg.value == estimatedAmount, "E_HOLD_INVALID_AUTHORIZED_AMOUNT");
     require(msg.sender == buyer, "E_HOLD_ONLY_BUYER");
 
-    bool isExpirationValid = (_expiredAt > clock.checkedAt() + 24 hours) &&
-      (_expiredAt < clock.checkedAt() + 30 days);
+    bool isExpirationValid = (_expiredAt > clock.checkedAt().add(24 hours)) &&
+      (_expiredAt < clock.checkedAt().add(30 days));
 
     require(isExpirationValid, "E_HOLD_INVALID_EXPIRATION");
 
@@ -142,7 +145,7 @@ contract Hold {
 
     status = HoldStatus.REDEEMED;
 
-    uint256 remainingAmount = estimatedAmount - settledAmount;
+    uint256 remainingAmount = estimatedAmount.sub(settledAmount);
     buyer.transfer(remainingAmount);
 
     address hold = address(this);

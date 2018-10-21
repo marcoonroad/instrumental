@@ -5,3 +5,6 @@ ganache-cli.pid
 ganache-cli.log
 coverage/
 coverage.json
+yarn-error.log
+coverageEnv/
+.node-*

@@ -1,11 +1,14 @@
 pragma solidity 0.4.24;
 
 import "./Clock.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 // contract for a Cashback reward
 // under a Loyalty program
 
 contract Loyalty {
+
+  using SafeMath for uint256;
 
   Clock public clock;
   uint256 public rebateBasis;
@@ -45,7 +48,7 @@ contract Loyalty {
     require(isRebateBasisValid, "E_LOYALTY_INVALID_REBATE_BASIS");
 
     merchant = msg.sender;
-    rebateBasis = _rebateBasis * 30 days;
+    rebateBasis = _rebateBasis.mul(30 days);
     discountRate = _discountRate;
     clock = new Clock();
 
@@ -61,29 +64,18 @@ contract Loyalty {
     require(msg.sender != merchant, "E_LOYALTY_EXCEPT_MERCHANT");
     require(msg.value >= 100, "E_LOYALTY_INVALID_PAYMENT_AMOUNT");
 
-    uint256 customerBalance = balanceOf[msg.sender];
+    uint256 customerPart = msg.value.div(100).mul(discountRate);
 
-    uint256 customerPart = (msg.value / 100) * discountRate;
-
-    bool customerBalanceDoesntOverflow = ((customerBalance + customerPart) >= customerPart) &&
-      ((customerBalance + customerPart) >= customerBalance);
-
-    require(customerBalanceDoesntOverflow, "E_LOYALTY_CUSTOMER_BALANCE_OVERFLOW");
-
-    balanceOf[msg.sender] += customerPart;
+    balanceOf[msg.sender] = balanceOf[msg.sender].add(customerPart);
 
     // first customer payment
     if (claimedAt[msg.sender] == 0) {
       claimedAt[msg.sender] = clock.checkedAt();
     }
 
-    uint256 merchantPart = msg.value - customerPart;
+    uint256 merchantPart = msg.value.sub(customerPart);
 
-    bool merchantBalanceDoesntOverflow = ((merchantBalance + merchantPart) >= merchantPart) &&
-      ((merchantBalance + merchantPart) >= merchantBalance);
-
-    require(merchantBalanceDoesntOverflow, "E_LOYALTY_MERCHANT_BALANCE_OVERFLOW");
-    merchantBalance += merchantPart;
+    merchantBalance = merchantBalance.add(merchantPart);
 
     emit LogLoyaltyPayment(msg.sender, clock.checkedAt(), msg.value);
   }
@@ -107,7 +99,7 @@ contract Loyalty {
     require(customerBalance > 0, "E_LOYALTY_EMPTY_CUSTOMER_BALANCE");
 
     uint256 customerClaimDate = claimedAt[msg.sender];
-    require(clock.checkedAt() - customerClaimDate > rebateBasis, "E_LOYALTY_CASHBACK_NOT_READY");
+    require(clock.checkedAt().sub(customerClaimDate) > rebateBasis, "E_LOYALTY_CASHBACK_NOT_READY");
 
     balanceOf[msg.sender] = 0;
     claimedAt[msg.sender] = clock.checkedAt();
