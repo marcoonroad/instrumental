@@ -38,9 +38,9 @@ module.exports = async (params) => {
   const time = now() + (2 * 24 * 60 * 60)
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.authorize(time, options.attacker1),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_INVALID_AUTHORIZED_AMOUNT'
   )
 
   await timeTravel(35) // seconds
@@ -49,18 +49,18 @@ module.exports = async (params) => {
   balances.buyer.push(await balanceOf(accounts[6]))
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.settle(fromEther(0.9), options.attacker2),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_ONLY_SELLER'
   )
 
   await timeTravel(35) // seconds
   await hold.settle(fromEther(1.4), options.seller)
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.redeem(options.attacker2),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_ONLY_BUYER'
   )
 
   await timeTravel(35) // seconds

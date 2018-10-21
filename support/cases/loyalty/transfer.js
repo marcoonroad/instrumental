@@ -32,19 +32,19 @@ module.exports = async (params) => {
   }
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     loyalty.sendTransaction({
       from: accounts[5],
       value: 95,
       gasPrice: 0
     }),
-    truffleAssert.ErrorType.REVERT
+    'E_LOYALTY_INVALID_PAYMENT_AMOUNT'
   )
 
   // can't pull when merchant balance is 0
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     loyalty.receive({ from: accounts[3], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_LOYALTY_EMPTY_MERCHANT_BALANCE'
   )
 
   await timeTravel(35) // seconds
@@ -60,9 +60,9 @@ module.exports = async (params) => {
 
   // for the merchant to receive his own money, it
   // doesn't depend on time, it's only depend on balance
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     loyalty.receive({ from: accounts[4], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_LOYALTY_ONLY_MERCHANT'
   )
   await loyalty.receive({ from: accounts[3], gasPrice: 0 })
 
@@ -89,12 +89,12 @@ module.exports = async (params) => {
 
   await timeTravel(35) // seconds
   // merchant himself can't enter loyalty program
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     loyalty.sendTransaction({
       from: accounts[3],
       value: fromEther(1.2),
       gasPrice: 0
     }),
-    truffleAssert.ErrorType.REVERT
+    'E_LOYALTY_EXCEPT_MERCHANT'
   )
 }

@@ -44,31 +44,31 @@ module.exports = async (params) => {
   const time = now() + (2 * 24 * 60 * 60)
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.authorize(time, options.attacker),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_INVALID_AUTHORIZED_AMOUNT'
   )
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.authorize(time, {
       from: accounts[9],
       value: 350,
       gasPrice: 0
     }),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_ONLY_BUYER'
   )
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.authorize(now() + (60 * 60), options.buyer),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_INVALID_EXPIRATION'
   )
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.authorize(now() + (31 * 24 * 60 * 60), options.buyer),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_INVALID_EXPIRATION'
   )
 
   await timeTravel(35) // seconds

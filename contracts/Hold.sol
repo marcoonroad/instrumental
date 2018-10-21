@@ -62,10 +62,11 @@ contract Hold {
     address _buyer,
     uint256 _estimatedAmount
   ) public {
-    require(_buyer != address(0));
-    require(_buyer != address(this));
-    require(msg.sender != _buyer);
-    require(_estimatedAmount >= 1);
+    bool isBuyerValid = (_buyer != address(0)) &&
+      (_buyer != address(this)) && (msg.sender != _buyer);
+
+    require(isBuyerValid, "E_HOLD_INVALID_BUYER");
+    require(_estimatedAmount >= 1, "E_HOLD_INVALID_ESTIMATED_AMOUNT");
 
     seller = msg.sender;
     buyer = _buyer;
@@ -80,10 +81,13 @@ contract Hold {
   function authorize(uint256 _expiredAt) public payable {
     clock.tick();
 
-    require(msg.value == estimatedAmount);
-    require(msg.sender == buyer);
-    require(_expiredAt > clock.checkedAt() + 24 hours);
-    require(_expiredAt < clock.checkedAt() + 30 days);
+    require(msg.value == estimatedAmount, "E_HOLD_INVALID_AUTHORIZED_AMOUNT");
+    require(msg.sender == buyer, "E_HOLD_ONLY_BUYER");
+
+    bool isExpirationValid = (_expiredAt > clock.checkedAt() + 24 hours) &&
+      (_expiredAt < clock.checkedAt() + 30 days);
+
+    require(isExpirationValid, "E_HOLD_INVALID_EXPIRATION");
 
     expiredAt = _expiredAt;
     status = HoldStatus.AUTHORIZED;
@@ -95,9 +99,9 @@ contract Hold {
   function refund() public {
     clock.tick();
 
-    require(status == HoldStatus.AUTHORIZED);
-    require(msg.sender == buyer);
-    require(clock.checkedAt() > expiredAt);
+    require(status == HoldStatus.AUTHORIZED, "E_HOLD_NOT_AUTHORIZED");
+    require(msg.sender == buyer, "E_HOLD_ONLY_BUYER");
+    require(clock.checkedAt() > expiredAt, "E_HOLD_NOT_EXPIRED");
 
     status = HoldStatus.REFUNDED;
 
@@ -111,11 +115,14 @@ contract Hold {
   function settle(uint256 _settledAmount) public {
     clock.tick();
 
-    require(status == HoldStatus.AUTHORIZED);
-    require(msg.sender == seller);
-    require(clock.checkedAt() < expiredAt);
-    require(_settledAmount >= 1);
-    require(_settledAmount <= estimatedAmount);
+    require(status == HoldStatus.AUTHORIZED, "E_HOLD_NOT_AUTHORIZED");
+    require(msg.sender == seller, "E_HOLD_ONLY_SELLER");
+    require(clock.checkedAt() < expiredAt, "E_HOLD_EXPIRED");
+
+    bool isSettledAmountValid = (_settledAmount >= 1) &&
+      (_settledAmount <= estimatedAmount);
+
+    require(isSettledAmountValid, "E_HOLD_INVALID_SETTLED_AMOUNT");
 
     settledAmount = _settledAmount;
     status = HoldStatus.SETTLED;
@@ -129,9 +136,9 @@ contract Hold {
   function redeem() public {
     clock.tick();
 
-    require(msg.sender == buyer);
-    require(status == HoldStatus.SETTLED);
-    require(settledAmount < estimatedAmount);
+    require(msg.sender == buyer, "E_HOLD_ONLY_BUYER");
+    require(status == HoldStatus.SETTLED, "E_HOLD_NOT_SETTLED");
+    require(settledAmount < estimatedAmount, "E_HOLD_NOT_REDEEMABLE");
 
     status = HoldStatus.REDEEMED;
 

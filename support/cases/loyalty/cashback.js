@@ -34,9 +34,9 @@ module.exports = async (params) => {
     gasPrice: 0
   })
 
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     loyalty.receive({ from: accounts[2], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_LOYALTY_ONLY_MERCHANT'
   )
   await loyalty.receive({ from: accounts[7], gasPrice: 0 })
 
@@ -45,17 +45,17 @@ module.exports = async (params) => {
   // first claimed cashback doesn't respect
   // rebate basis interval, so immediate
   // cashbacks are possible on the first time
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     loyalty.cashback({ from: accounts[4], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_LOYALTY_CASHBACK_NOT_READY'
   )
 
   // forwards time by 12 months
   await timeTravel(12 * 30 * 24 * 60 * 60)
 
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     loyalty.cashback({ from: accounts[5], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_LOYALTY_EMPTY_CUSTOMER_BALANCE'
   )
 
   const oldLoyaltyBalance = toEther(await balanceOf(loyalty.address))
@@ -94,16 +94,16 @@ module.exports = async (params) => {
 
   await timeTravel(35) // seconds
   // empty customer cashback balance
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     loyalty.cashback({ from: accounts[4], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_LOYALTY_EMPTY_CUSTOMER_BALANCE'
   )
 
   await timeTravel(35) // seconds
   // can't cashback from merchant account
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     loyalty.cashback({ from: accounts[7], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_LOYALTY_EXCEPT_MERCHANT'
   )
 
   await timeTravel(35) // seconds
@@ -118,8 +118,8 @@ module.exports = async (params) => {
   // forwards time by 1 month
   await timeTravel(30 * 24 * 60 * 60)
 
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     loyalty.cashback({ from: accounts[4], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_LOYALTY_CASHBACK_NOT_READY'
   )
 }

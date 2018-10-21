@@ -8,5 +8,9 @@ module.exports = {
   testrpcOptions: '-p 6545',
   compileCommand: `../${nodeBinaries}/truffle compile`,
   testCommand: `${nodeExecutable} ../${nodeBinaries}/${truffleCoverage}`,
-  dir: './'
+  dir: './',
+  skipFiles: [
+    'helpers/Migrations.sol',
+    'helpers/FallbackMethodCall.sol'
+  ]
 }

@@ -5,6 +5,7 @@ module.exports = async (params) => {
   const accounts = params.accounts
   const balanceOf = params.balanceOf
   const truffleAssert = params.truffleAssert
+  const timeTravel = params.timeTravel
 
   const balances = {
     hold: [],
@@ -18,19 +19,19 @@ module.exports = async (params) => {
   const options = {
     from: accounts[1]
   }
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     Hold.new(accounts[1], 200, options),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_INVALID_BUYER'
   )
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     Hold.new(accounts[2], 0, options),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_INVALID_ESTIMATED_AMOUNT'
   )
 
   const nullAddress = '0x' + '0'.repeat(40)
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     Hold.new(nullAddress, 300, options),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_INVALID_BUYER'
   )
   const hold = await Hold.new(accounts[2], 200, options)
 
@@ -70,14 +71,17 @@ module.exports = async (params) => {
   assert.equal(seller, accounts[1])
   assert.equal(status.toNumber(), HoldStatus.PENDING)
 
+  await timeTravel(35) // seconds
   // can't settle without prior authorization
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.settle(150, { from: accounts[1], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_NOT_AUTHORIZED'
   )
+
+  await timeTravel(35) // seconds
   // can't refund without prior authorization
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.refund({ from: accounts[2], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_NOT_AUTHORIZED'
   )
 }

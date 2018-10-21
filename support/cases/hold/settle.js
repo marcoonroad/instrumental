@@ -24,7 +24,7 @@ module.exports = async (params) => {
     },
     attacker1: {
       from: accounts[9],
-      value: 20
+      value: 100
     },
     attacker2: {
       from: accounts[8]
@@ -36,15 +36,15 @@ module.exports = async (params) => {
   const time = now() + (2 * 24 * 60 * 60)
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.settle(100, options.seller),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_NOT_AUTHORIZED'
   )
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.authorize(time, options.attacker1),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_ONLY_BUYER'
   )
 
   await timeTravel(35) // seconds
@@ -53,37 +53,37 @@ module.exports = async (params) => {
   balances.buyer.push(await balanceOf(accounts[4]))
 
   await timeTravel(35) // seconds
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.settle(50, options.attacker2),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_ONLY_SELLER'
   )
 
   await timeTravel(35) // seconds
   // can't redeem without prior settlement
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.redeem({ from: accounts[4], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_NOT_SETTLED'
   )
 
   await timeTravel(35) // seconds
   // can't settle amount greater than authorized one
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.settle(101, { from: accounts[3], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_INVALID_SETTLED_AMOUNT'
   )
 
   await timeTravel(35) // seconds
   // can't settle empty amount, minimal is 1
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.settle(0, { from: accounts[3], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_INVALID_SETTLED_AMOUNT'
   )
 
   await timeTravel(35) // seconds
   // can't refund without expired time
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.refund({ from: accounts[4], gasPrice: 0 }),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_NOT_EXPIRED'
   )
 
   await timeTravel(35) // seconds
@@ -114,8 +114,8 @@ module.exports = async (params) => {
 
   await timeTravel(35) // seconds
   // can't redeem without remaining amount
-  await truffleAssert.fails(
+  await truffleAssert.reverts(
     hold.redeem({ from: accounts[4] }),
-    truffleAssert.ErrorType.REVERT
+    'E_HOLD_NOT_REDEEMABLE'
   )
 }

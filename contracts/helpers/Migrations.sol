@@ -9,7 +9,7 @@ contract Migrations {
   uint public last_completed_migration;
 
   modifier restricted() {
-    require(msg.sender == owner);
+    require(msg.sender == owner, "E_MIGRATIONS_ONLY_OWNER");
     _;
   }
 
@@ -22,8 +22,11 @@ contract Migrations {
   }
 
   function upgrade(address newAddress) public restricted {
-    require(newAddress != address(0));
-    require(newAddress != address(this));
+    bool isNewAddressValid = (newAddress != address(0)) &&
+      (newAddress != address(this));
+
+    require(isNewAddressValid, "E_MIGRATIONS_INVALID_NEW_ADDRESS");
+
     Migrations upgraded = Migrations(newAddress);
     upgraded.setCompleted(last_completed_migration);
   }

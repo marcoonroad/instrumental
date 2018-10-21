@@ -16,7 +16,7 @@ const {
 } = require('../support/block')
 
 const Hold = artifacts.require('./Hold.sol')
-const truffleAssert = require('truffle-assertions')
+const truffleAssert = require('../support/assertions')
 const cases = require('../support/cases/hold')
 
 contract('Hold', accounts => {

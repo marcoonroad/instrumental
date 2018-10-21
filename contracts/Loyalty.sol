@@ -38,8 +38,11 @@ contract Loyalty {
     uint256 _discountRate,
     uint256 _rebateBasis
   ) public {
-    require(1 <= _discountRate && _discountRate <= 5);
-    require(1 <= _rebateBasis && _rebateBasis <= 12);
+    bool isDiscountRateValid = (1 <= _discountRate) && (_discountRate <= 5);
+    bool isRebateBasisValid = (1 <= _rebateBasis) && (_rebateBasis <= 12);
+
+    require(isDiscountRateValid, "E_LOYALTY_INVALID_DISCOUNT_RATE");
+    require(isRebateBasisValid, "E_LOYALTY_INVALID_REBATE_BASIS");
 
     merchant = msg.sender;
     rebateBasis = _rebateBasis * 30 days;
@@ -54,14 +57,18 @@ contract Loyalty {
   function () external payable {
     clock.tick();
 
-    require(msg.data.length == 0);
-    require(msg.sender != merchant);
-    require(msg.value >= 100);
+    require(msg.data.length == 0, "E_LOYALTY_TRIGGERED_FALLBACK_METHOD");
+    require(msg.sender != merchant, "E_LOYALTY_EXCEPT_MERCHANT");
+    require(msg.value >= 100, "E_LOYALTY_INVALID_PAYMENT_AMOUNT");
 
     uint256 customerBalance = balanceOf[msg.sender];
 
     uint256 customerPart = (msg.value / 100) * discountRate;
-    require(customerBalance + customerPart > 0);
+
+    bool customerBalanceDoesntOverflow = ((customerBalance + customerPart) >= customerPart) &&
+      ((customerBalance + customerPart) >= customerBalance);
+
+    require(customerBalanceDoesntOverflow, "E_LOYALTY_CUSTOMER_BALANCE_OVERFLOW");
 
     balanceOf[msg.sender] += customerPart;
 
@@ -71,15 +78,19 @@ contract Loyalty {
     }
 
     uint256 merchantPart = msg.value - customerPart;
-    require(merchantBalance + merchantPart > 0);
+
+    bool merchantBalanceDoesntOverflow = ((merchantBalance + merchantPart) >= merchantPart) &&
+      ((merchantBalance + merchantPart) >= merchantBalance);
+
+    require(merchantBalanceDoesntOverflow, "E_LOYALTY_MERCHANT_BALANCE_OVERFLOW");
     merchantBalance += merchantPart;
 
     emit LogLoyaltyPayment(msg.sender, clock.checkedAt(), msg.value);
   }
 
   function receive() public {
-    require(msg.sender == merchant);
-    require(merchantBalance > 0);
+    require(msg.sender == merchant, "E_LOYALTY_ONLY_MERCHANT");
+    require(merchantBalance > 0, "E_LOYALTY_EMPTY_MERCHANT_BALANCE");
 
     uint256 merchantPart = merchantBalance;
     merchantBalance = 0;
@@ -90,13 +101,13 @@ contract Loyalty {
   function cashback() public {
     clock.tick();
 
-    require(msg.sender != merchant);
+    require(msg.sender != merchant, "E_LOYALTY_EXCEPT_MERCHANT");
 
     uint256 customerBalance = balanceOf[msg.sender];
-    require(customerBalance > 0);
+    require(customerBalance > 0, "E_LOYALTY_EMPTY_CUSTOMER_BALANCE");
 
     uint256 customerClaimDate = claimedAt[msg.sender];
-    require(clock.checkedAt() - customerClaimDate > rebateBasis);
+    require(clock.checkedAt() - customerClaimDate > rebateBasis, "E_LOYALTY_CASHBACK_NOT_READY");
 
     balanceOf[msg.sender] = 0;
     claimedAt[msg.sender] = clock.checkedAt();
