@@ -12,6 +12,9 @@ Financial Instruments encoded as Smart Contracts.
 <a style="margin: 0.1em;" href="https://coveralls.io/github/marcoonroad/instrumental?branch=master">
 <img src="https://img.shields.io/coveralls/github/marcoonroad/instrumental.svg?style=flat-square"/>
 </a>
+<a style="margin: 0.1em;" href="https://app.codacy.com/project/marcoonroad/instrumental/dashboard">
+<img src="https://img.shields.io/codacy/grade/7f4c18d183f94540b5fc48a8fc9d1101.svg?style=flat-square"/>
+</a>
 <a style="margin: 0.1em;" href="https://github.com/marcoonroad/instrumental/blob/master/LICENSE.md">
 <img src="https://img.shields.io/github/license/marcoonroad/instrumental.svg?style=flat-square"/> </a>
 <a style="margin: 0.1em;" href="https://github.com/marcoonroad/instrumental/compare">
