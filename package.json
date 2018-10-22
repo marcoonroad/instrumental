@@ -21,7 +21,7 @@
     "pretest:eth": "yarn run lint",
     "test:eth": "truffle test",
     "pretest": "yarn run net:on",
-    "test": "yarn run test:eth && yarn run net:off || yarn run test:break",
+    "test": "snyk test && yarn run test:eth && yarn run net:off || yarn run test:break",
     "test:break": "yarn run net:off && exit 1",
     "hook:commit": "lint-staged",
     "hook:push": "yarn run test"
@@ -75,6 +75,7 @@
     "standard": "^12.0.1",
     "truffle": "^4.1.14",
     "truffle-assertions": "^0.6.2",
+    "snyk": "^1.104.1",
     "truffle-hdwallet-provider": "^0.0.6"
   },
   "dependencies": {

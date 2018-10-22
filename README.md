@@ -15,6 +15,9 @@ Financial Instruments encoded as Smart Contracts.
 <a style="margin: 0.1em;" href="https://app.codacy.com/project/marcoonroad/instrumental/dashboard">
 <img src="https://img.shields.io/codacy/grade/7f4c18d183f94540b5fc48a8fc9d1101.svg?style=flat-square"/>
 </a>
+<a style="margin: 0.1em;" href="https://snyk.io/test/github/marcoonroad/instrumental">
+<img src="https://snyk.io/test/github/marcoonroad/instrumental/badge.svg?style=flat-square" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/marcoonroad/instrumental" style="max-width:100%;"/>
+</a>
 <a style="margin: 0.1em;" href="https://github.com/marcoonroad/instrumental/blob/master/LICENSE.md">
 <img src="https://img.shields.io/github/license/marcoonroad/instrumental.svg?style=flat-square"/> </a>
 <a style="margin: 0.1em;" href="https://github.com/marcoonroad/instrumental/compare">
