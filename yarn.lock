@@ -8673,10 +8673,10 @@ trough@^1.0.0:
   resolved "https://registry.yarnpkg.com/trough/-/trough-1.0.3.tgz#e29bd1614c6458d44869fc28b255ab7857ef7c24"
   integrity sha512-fwkLWH+DimvA4YCy+/nvJd61nWQQ2liO/nF/RjkTpiOGi+zxZzVkhb1mvbHIIW4b/8nDsYI8uTmAlc0nNkRMOw==
 
-truffle-assertions@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/truffle-assertions/-/truffle-assertions-0.5.0.tgz#afae9d87efc1324d11a3fa27a517049004d23a02"
-  integrity sha512-6/lyMkmGe0dOKxz17eGNB9bKnT4hhgCnRnHKGgv0j5aeyWC/V9QX6iLk6DcAjRvNiW8xVh0oEhZy8i6xRy0saA==
+truffle-assertions@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/truffle-assertions/-/truffle-assertions-0.6.2.tgz#4aed8f193a4ddfe59af567386d13bd55b0335962"
+  integrity sha512-jK/uh8WEq7qNtSSmzujfjQkOE0C1h3NBOjy4nUjo57jckdxxComJ5TnrMxSb9jhXCk44jl98OxoT9zIXHIA97Q==
   dependencies:
     assertion-error "^1.1.0"
     web3 "^1.0.0-beta.35"
