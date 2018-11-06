@@ -16,14 +16,64 @@ module.exports = async (params) => {
 
   const _discountRate = 5
   const _rebateBasis = 1
+  const _acceptanceFee = fromEther(0.0005)
 
-  const loyalty = await Loyalty.new(_discountRate, _rebateBasis, options)
+  const loyalty = await Loyalty.new(_discountRate, _rebateBasis, _acceptanceFee, options)
 
   const timestamp = now()
   const oldMerchantBalance = toEther(await balanceOf(accounts[3]))
   const oldCustomerBalance = toEther(await balanceOf(accounts[5]))
   const oldLoyaltyBalance = toEther(await balanceOf(loyalty.address))
   const amount = fromEther(2)
+
+  await truffleAssert.reverts(
+    loyalty.enter({
+      from: accounts[5],
+      value: _acceptanceFee * 2,
+      gasPrice: 0
+    }),
+    'E_LOYALTY_INVALID_ACCEPTANCE_FEE'
+  )
+  await truffleAssert.reverts(
+    loyalty.enter({
+      from: accounts[5],
+      value: _acceptanceFee / 2,
+      gasPrice: 0
+    }),
+    'E_LOYALTY_INVALID_ACCEPTANCE_FEE'
+  )
+  await truffleAssert.reverts(
+    loyalty.enter({
+      from: accounts[3],
+      value: _acceptanceFee,
+      gasPrice: 0
+    }),
+    'E_LOYALTY_EXCEPT_MERCHANT'
+  )
+
+  const txEnter = await loyalty.enter({
+    from: accounts[5],
+    value: _acceptanceFee,
+    gasPrice: 0
+  })
+
+  truffleAssert.eventEmitted(txEnter, 'LogLoyaltyAcceptance', event => {
+    return (
+      event.customer.toString() === accounts[5].toString() &&
+      event.loyalty.toString() === loyalty.address.toString() &&
+      Number(event.timestamp) >= timestamp
+    )
+  })
+
+  // customer can't enter twice our loyalty program
+  await truffleAssert.reverts(
+    loyalty.enter({
+      from: accounts[5],
+      value: _acceptanceFee,
+      gasPrice: 0
+    }),
+    'E_LOYALTY_ALREADY_ACCEPTED'
+  )
 
   const transferOptions = {
     from: accounts[5],
@@ -39,6 +89,15 @@ module.exports = async (params) => {
       gasPrice: 0
     }),
     'E_LOYALTY_INVALID_PAYMENT_AMOUNT'
+  )
+
+  await truffleAssert.reverts(
+    loyalty.sendTransaction({
+      from: accounts[3],
+      value: _acceptanceFee,
+      gasPrice: 0
+    }),
+    'E_LOYALTY_EXCEPT_MERCHANT'
   )
 
   // can't pull when merchant balance is 0
@@ -84,17 +143,30 @@ module.exports = async (params) => {
   )
   assert.equal(
     Number(newLoyaltyBalance),
-    Number(oldLoyaltyBalance) + Number(discountedAmount)
+    Number(oldLoyaltyBalance) + Number(discountedAmount) + Number(toEther(_acceptanceFee))
+  )
+  assert.equal(
+    Number(newCustomerBalance),
+    Number(oldCustomerBalance) - (paidAmount + Number(toEther(_acceptanceFee))) // no cashback yet
   )
 
-  await timeTravel(35) // seconds
   // merchant himself can't enter loyalty program
   await truffleAssert.reverts(
-    loyalty.sendTransaction({
+    loyalty.enter({
       from: accounts[3],
-      value: fromEther(1.2),
+      value: _acceptanceFee,
       gasPrice: 0
     }),
     'E_LOYALTY_EXCEPT_MERCHANT'
+  )
+
+  // only loyalty club members can accumulate cashbacks
+  await truffleAssert.reverts(
+    loyalty.sendTransaction({
+      from: accounts[8],
+      value: fromEther(1.5),
+      gasPrice: 0
+    }),
+    'E_LOYALTY_NON_MEMBER'
   )
 }

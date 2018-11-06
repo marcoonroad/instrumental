@@ -2,7 +2,9 @@ sudo: required
 language: node_js
 
 env:
-  - BUILD_JOB_TYPE=test
+  - BUILD_JOB_TYPE=test truffle_test_file=test/clock.js
+  - BUILD_JOB_TYPE=test truffle_test_file=test/loyalty.js
+  - BUILD_JOB_TYPE=test truffle_test_file=test/hold.js
   - BUILD_JOB_TYPE=report
 
 node_js:

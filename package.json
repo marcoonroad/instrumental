@@ -19,7 +19,7 @@
     "lint:eth": "yarn run lint:solium && yarn run lint:solhint",
     "lint": "yarn run lint:eth && yarn run lint:std",
     "pretest:eth": "yarn run lint",
-    "test:eth": "truffle test",
+    "test:eth": "truffle test $truffle_test_file",
     "pretest": "yarn run net:on",
     "test": "yarn run test:eth && yarn run net:off || yarn run test:break",
     "test:break": "yarn run net:off && exit 1",

@@ -20,4 +20,10 @@ contract Clock {
     checkedAt = block.timestamp;
   }
 
+  function dispose() public {
+    require(msg.sender == owner, "E_CLOCK_ONLY_OWNER");
+
+    selfdestruct(owner);
+  }
+
 }
