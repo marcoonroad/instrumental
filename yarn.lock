@@ -9269,7 +9269,7 @@ trough@^1.0.0:
   resolved "https://registry.yarnpkg.com/trough/-/trough-1.0.3.tgz#e29bd1614c6458d44869fc28b255ab7857ef7c24"
   integrity sha512-fwkLWH+DimvA4YCy+/nvJd61nWQQ2liO/nF/RjkTpiOGi+zxZzVkhb1mvbHIIW4b/8nDsYI8uTmAlc0nNkRMOw==
 
-truffle-assertions@^0.6.2:
+truffle-assertions@^0.6.3:
   version "0.6.3"
   resolved "https://registry.yarnpkg.com/truffle-assertions/-/truffle-assertions-0.6.3.tgz#519c00ea80b5cefe609af78645d8e72c98708250"
   integrity sha512-0j8WU7tc4tDhQauiGqgRFOQtH0QLlc/T/jd2KjSrw3kvJxu4IZU0KAdosohN2nFAnrGHF/O4K1da/yEQjwgH7g==
