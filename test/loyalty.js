@@ -42,7 +42,9 @@ contract('Loyalty', accounts => {
   })
 
   it('should not trigger fallback method', async () => {
-    const loyalty = await Loyalty.new(2, 6, { from: accounts[8], gasPrice: 0 })
+    const loyalty = await Loyalty.new(2, 6, fromEther(0.0003), {
+      from: accounts[8], gasPrice: 0
+    })
 
     const fallbackMethodCall = FallbackMethodCall.at(loyalty.address)
 

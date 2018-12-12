@@ -24,4 +24,13 @@ contract('Clock', accounts => {
       'E_CLOCK_TIME_DRIFT'
     )
   })
+
+  it('should fails when we try to dispose without rights for that', async () => {
+    const clock = await Clock.new({ from: accounts[ 6 ], gasPrice: 0 })
+
+    await truffleAssert.reverts(
+      clock.dispose({ from: accounts[ 5 ], gasPrice: 0 }),
+      'E_CLOCK_ONLY_OWNER'
+    )
+  })
 })

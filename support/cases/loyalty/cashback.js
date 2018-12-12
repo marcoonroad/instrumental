@@ -11,8 +11,9 @@ module.exports = async (params) => {
 
   const _discountRate = 1
   const _rebateBasis = 12
+  const _acceptanceFee = fromEther(0.0002)
 
-  const loyalty = await Loyalty.new(_discountRate, _rebateBasis, {
+  const loyalty = await Loyalty.new(_discountRate, _rebateBasis, _acceptanceFee, {
     from: accounts[7],
     gasPrice: 0
   })
@@ -20,9 +21,26 @@ module.exports = async (params) => {
   const oldCustomerBalance = toEther(await balanceOf(accounts[4]))
   const oldMerchantBalance = toEther(await balanceOf(accounts[7]))
 
+  await loyalty.enter({
+    from: accounts[4],
+    value: _acceptanceFee,
+    gasPrice: 0
+  })
+
+  await loyalty.enter({
+    from: accounts[1],
+    value: _acceptanceFee,
+    gasPrice: 0
+  })
+
   await timeTravel(35) // seconds
   await loyalty.sendTransaction({
     from: accounts[4],
+    value: fromEther(3),
+    gasPrice: 0
+  })
+  await loyalty.sendTransaction({
+    from: accounts[1],
     value: fromEther(3),
     gasPrice: 0
   })
@@ -31,6 +49,11 @@ module.exports = async (params) => {
   await loyalty.sendTransaction({
     from: accounts[4],
     value: fromEther(1),
+    gasPrice: 0
+  })
+  await loyalty.sendTransaction({
+    from: accounts[1],
+    value: fromEther(5),
     gasPrice: 0
   })
 
@@ -50,8 +73,18 @@ module.exports = async (params) => {
     'E_LOYALTY_CASHBACK_NOT_READY'
   )
 
-  // forwards time by 12 months
-  await timeTravel(12 * 30 * 24 * 60 * 60)
+  await truffleAssert.reverts(
+    loyalty.cashback({ from: accounts[5], gasPrice: 0 }),
+    'E_LOYALTY_NON_MEMBER'
+  )
+  await loyalty.enter({
+    value: _acceptanceFee,
+    from: accounts[5],
+    gasPrice: 0
+  })
+
+  // forwards time by 13 months
+  await timeTravel(13 * 30 * 24 * 60 * 60)
 
   await truffleAssert.reverts(
     loyalty.cashback({ from: accounts[5], gasPrice: 0 }),
@@ -59,6 +92,8 @@ module.exports = async (params) => {
   )
 
   const oldLoyaltyBalance = toEther(await balanceOf(loyalty.address))
+
+  await loyalty.cashback({ from: accounts[1], gasPrice: 0 })
 
   const timestamp = now()
   const txCashback = await loyalty.cashback({ from: accounts[4], gasPrice: 0 })
@@ -81,15 +116,15 @@ module.exports = async (params) => {
 
   assert.equal(
     Number(newMerchantBalance),
-    Number(oldMerchantBalance) + Number(merchantAmount)
+    Number(oldMerchantBalance) + Number(merchantAmount) + (8 - 0.08)
   )
   assert.equal(
-    Number(newCustomerBalance),
+    Number(newCustomerBalance) + Number(toEther(_acceptanceFee)),
     Number(oldCustomerBalance) - Number(merchantAmount)
   )
   assert.equal(
-    Number(newLoyaltyBalance),
-    Number(oldLoyaltyBalance) - Number(discountedAmount)
+    Number.parseInt((Number(newLoyaltyBalance) + Number(discountedAmount) + 0.08) * 10e4),
+    Number.parseInt(Number(oldLoyaltyBalance) * 10e4)
   )
 
   await timeTravel(35) // seconds
@@ -118,6 +153,7 @@ module.exports = async (params) => {
   // forwards time by 1 month
   await timeTravel(30 * 24 * 60 * 60)
 
+  // has accumulated cashback, but not available minimum rebate interval
   await truffleAssert.reverts(
     loyalty.cashback({ from: accounts[4], gasPrice: 0 }),
     'E_LOYALTY_CASHBACK_NOT_READY'
