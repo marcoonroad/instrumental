@@ -987,8 +987,9 @@ async-eventemitter@^0.2.2:
   dependencies:
     async "^2.4.0"
 
-"async-eventemitter@github:ahultgren/async-eventemitter#fa06e39e56786ba541c180061dbf2c0a5bbf951c":
+async-eventemitter@ahultgren/async-eventemitter#fa06e39e56786ba541c180061dbf2c0a5bbf951c:
   version "0.2.3"
+  uid fa06e39e56786ba541c180061dbf2c0a5bbf951c
   resolved "https://codeload.github.com/ahultgren/async-eventemitter/tar.gz/fa06e39e56786ba541c180061dbf2c0a5bbf951c"
   dependencies:
     async "^2.4.0"
@@ -8603,10 +8604,10 @@ solgraph@^0.3.3:
     graphlib-dot "^0.6.2"
     solidity-parser-sc "^0.4.10"
 
-solhint@^1.2.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/solhint/-/solhint-1.4.1.tgz#921ef9fed83dc945853079865140730d4d2140b2"
-  integrity sha512-BAgDCldys6s4JZ5zvc72wgSrCVofW9MWj7ylorhlXyDPX46wZ9cWQtBk+lp1tUcjMlVW8vJwgVkmxT1EinP91g==
+solhint@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/solhint/-/solhint-1.5.1.tgz#a8feca7e2d174c2b7276ca0f68b496c3fb306ced"
+  integrity sha512-ZweXCnsSEntIFcY7QYwdqnU9THuJQRt8XLxg3hNJPePGIg+VcucYr2KZZE/mDVy4ZDzhZ0zpW3tWAnc5ZgXWCA==
   dependencies:
     antlr4 "4.7.1"
     commander "2.18.0"
