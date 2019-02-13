@@ -76,7 +76,7 @@
     "truffle": "^4.1.14",
     "snyk": "^1.104.1",
     "truffle-assertions": "^0.6.3",
-    "truffle-hdwallet-provider": "^0.0.6"
+    "truffle-hdwallet-provider": "^1.0.4"
   },
   "dependencies": {
     "openzeppelin-solidity": "2.0.0"
