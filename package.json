@@ -67,7 +67,7 @@
     "remark-cli": "^6.0.1",
     "prettier": "^1.15.2",
     "remark-lint": "^6.0.3",
-    "solc": "0.4.24",
+    "solc": "0.5.5",
     "solgraph": "^0.3.3",
     "solhint": "^1.2.1",
     "solidity-coverage": "^0.5.11",
