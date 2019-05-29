@@ -75,7 +75,7 @@
     "standard": "^12.0.1",
     "truffle": "^4.1.14",
     "snyk": "^1.104.1",
-    "truffle-assertions": "^0.6.3",
+    "truffle-assertions": "^0.9.1",
     "truffle-hdwallet-provider": "^0.0.6"
   },
   "dependencies": {
