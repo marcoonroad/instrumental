@@ -63,7 +63,7 @@
     "eslint-plugin-standard": "^4.0.0",
     "ganache-cli": "^6.1.8",
     "lint-staged": "^8.0.5",
-    "husky": "^1.1.4",
+    "husky": "^3.0.3",
     "remark-cli": "^6.0.1",
     "prettier": "^1.15.2",
     "remark-lint": "^6.0.3",
