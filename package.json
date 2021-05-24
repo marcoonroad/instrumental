@@ -69,7 +69,7 @@
     "remark-lint": "^6.0.3",
     "solc": "0.4.24",
     "solgraph": "^0.3.3",
-    "solhint": "^1.2.1",
+    "solhint": "^3.3.5",
     "solidity-coverage": "^0.5.11",
     "solium": "^1.1.8",
     "standard": "^12.0.1",
