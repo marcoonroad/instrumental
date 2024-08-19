@@ -40,6 +40,7 @@ Financial Instruments encoded as Smart Contracts.
 -   [x] Loyalty/Cashback Reward Program (using MDR from Merchant Account)
 -   [ ] Coin Flip/Toss, Commit-Reveal-based Lottery / Public RNG
 -   [ ] Derivatives (futures, forwards, swaps and options)
+-   [x] Prediction Markets / Bet Houses
 
 * * *
 
